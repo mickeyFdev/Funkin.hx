@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v14';
+const CACHE_NAME = 'funkin-assets-v15';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -66,13 +66,16 @@ async function resolveAsset(relativePath) {
     const cached = await cache.match(url);
     if (cached) return cached;
     try {
-      const response = await fetch(url, {mode:'cors', credentials:'omit'});
+      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(5000)});
       if (response.ok) { cache.put(url, response.clone()).catch(() => {}); return response; }
     } catch (_) {}
   }
   if (/\.(png|jpg|jpeg|gif)$/i.test(basename)) return transparentPng();
-  if (/\.(mp3|ogg|wav)$/i.test(basename)) return new Response('', {status:200,headers:{'Content-Type':'audio/mpeg'}});
-  if (/\.json$/i.test(basename)) return new Response('{}', {status:200,headers:{'Content-Type':'application/json'}});
+  // Do not return an empty 200 response for missing audio/JSON. OpenFL's
+  // loader treats that as a successful load and can wait forever during the
+  // final game loading phase. A real 404 lets the bundle fail gracefully.
+  if (/\.(mp3|ogg|wav)$/i.test(basename)) return new Response('', {status:404,headers:{'Content-Type':'audio/mpeg'}});
+  if (/\.json$/i.test(basename)) return new Response('{}', {status:404,headers:{'Content-Type':'application/json'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
 }
 async function resolveManifest(name){return resolveAsset('manifest/'+name)}
