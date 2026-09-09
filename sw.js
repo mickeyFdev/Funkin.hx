@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v11';
+const CACHE_NAME = 'funkin-assets-v12';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 
@@ -33,16 +33,24 @@ self.addEventListener('fetch', event => {
 });
 
 async function resolveAsset(relativePath) {
-  const candidates = [];
   const basename = relativePath.split('/').pop();
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
-  if (fontUrl && isFont && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
-  if (modBase) candidates.push(modBase + relativePath);
+  const candidates = [];
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
+  const isOfficialVcr = /^vcr(?:-bold)?\.ttf$/i.test(basename);
+  // Keep the engine's own VCR face on desktop; replacing vcr.ttf with a UI
+  // font changes Canvas/Lime glyph metrics and makes the game look wrong.
+  if (fontUrl && isFont && !isOfficialVcr && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
+  if (modBase) candidates.push(modBase + relativePath);
   if (legacy[basename]) candidates.push(CDN + legacy[basename]);
   if (relativePath.startsWith('fonts/')) candidates.push(CDN + relativePath);
-  if (/^(manifest|preload|shared|songs|week\d+|weekend\d+)\//i.test(relativePath)) candidates.push(CDN + relativePath);
-  candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
+  // Map the engine's virtual assets/data path directly to the official CDN.
+  // This avoids waiting for several guaranteed 404 fallbacks on desktop.
+  if (relativePath.startsWith('data/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
+  else if (relativePath.startsWith('songs/')) candidates.push(CDN + relativePath);
+  else if (relativePath.startsWith('music/') || relativePath.startsWith('sounds/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
+  else if (/^(preload|shared|week\d+|weekend\d+)\//i.test(relativePath)) candidates.push(CDN + relativePath);
+  else candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
   const cache = await caches.open(CACHE_NAME);
   for (const url of candidates) {
     const cached = await cache.match(url);
