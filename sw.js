@@ -1,8 +1,9 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v13';
+const CACHE_NAME = 'funkin-assets-v14';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
+let runtimeBase = '';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
@@ -11,6 +12,7 @@ self.addEventListener('message', event => {
   if (event.data.type === 'set-mod-base') modBase = String(event.data.base || '').replace(/\/$/, '') + (event.data.base ? '/' : '');
   if (event.data.type === 'set-font-url') fontUrl = String(event.data.url || '');
   if (event.data.type === 'set-engine') engine = String(event.data.engine || 'official');
+  if (event.data.type === 'set-runtime-base') runtimeBase = String(event.data.base || '').replace(/\/$/, '') + (event.data.base ? '/' : '');
 });
 
 self.addEventListener('fetch', event => {
@@ -44,6 +46,11 @@ async function resolveAsset(relativePath) {
   // font changes Canvas/Lime glyph metrics and makes the game look wrong.
   if (fontUrl && isFont && !isOfficialVcr && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
   if (modBase) candidates.push(modBase + relativePath);
+  if (runtimeBase) {
+    if (engine === 'psych' || engine === 'manny') candidates.push(runtimeBase + 'shared/' + relativePath, runtimeBase + relativePath);
+    else if (engine === 'kade') candidates.push(runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
+    else candidates.push(runtimeBase + relativePath);
+  }
   if (legacy[basename]) candidates.push(CDN + legacy[basename]);
   if (relativePath.startsWith('fonts/')) candidates.push(CDN + relativePath);
   // Map the engine's virtual assets/data path directly to the official CDN.
