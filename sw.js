@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v3';
+const CACHE_NAME = 'funkin-assets-v4';
 let modBase = '';
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -33,6 +33,7 @@ async function resolveAsset(relativePath) {
   const legacy = {
     'default.png': 'preload/images/fonts/default.png',
     'circle.png': 'preload/images/pauseCircle.png',
+    'button.png': 'preload/images/backButton.png',
     'vcr-bmp.fnt': 'fonts/vcr-bmp.fnt',
     'vcr-bmp.png': 'fonts/vcr-bmp.png'
   };
