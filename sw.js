@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v4';
+const CACHE_NAME = 'funkin-assets-v5';
 let modBase = '';
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -18,7 +18,9 @@ self.addEventListener('fetch', event => {
   let relativePath = '';
   if (requestUrl.pathname.includes(marker)) {
     relativePath = decodeURIComponent(requestUrl.pathname.slice(requestUrl.pathname.indexOf(marker) + marker.length));
-  } else if (/\/(default|circle|diamond|square|diagonal_gradient)\.png$/i.test(requestUrl.pathname) || /\/vcr-bmp\.(fnt|png)$/i.test(requestUrl.pathname)) {
+  } else if (requestUrl.pathname.includes('/flixel/')) {
+    relativePath = decodeURIComponent(requestUrl.pathname.slice(requestUrl.pathname.indexOf('/flixel/') + 1));
+  } else if (/\/(default|circle|diamond|square|diagonal_gradient|button)\.png$/i.test(requestUrl.pathname) || /\/vcr-bmp\.(fnt|png)$/i.test(requestUrl.pathname)) {
     relativePath = decodeURIComponent(requestUrl.pathname.split('/').pop());
   } else return;
 
@@ -28,16 +30,19 @@ self.addEventListener('fetch', event => {
 async function resolveAsset(relativePath) {
   const candidates = [];
   if (modBase) candidates.push(modBase + relativePath);
+  const basename = relativePath.split('/').pop();
 
-  // Compatibility paths used by older Funkin.js bundles.
+  // Compatibility paths used by older Funkin.js / Flixel bundles.
   const legacy = {
     'default.png': 'preload/images/fonts/default.png',
     'circle.png': 'preload/images/pauseCircle.png',
     'button.png': 'preload/images/backButton.png',
     'vcr-bmp.fnt': 'fonts/vcr-bmp.fnt',
-    'vcr-bmp.png': 'fonts/vcr-bmp.png'
+    'vcr-bmp.png': 'fonts/vcr-bmp.png',
+    'flixel.mp3': 'preload/sounds/CS_select.mp3',
+    'beep.mp3': 'preload/sounds/CS_select.mp3'
   };
-  if (legacy[relativePath]) candidates.push(CDN + legacy[relativePath]);
+  if (legacy[basename]) candidates.push(CDN + legacy[basename]);
   if (relativePath.startsWith('fonts/')) candidates.push(CDN + relativePath);
 
   // Most current official assets are in preload; shared is the fallback.
@@ -55,8 +60,10 @@ async function resolveAsset(relativePath) {
     } catch (_) {}
   }
 
-  // These old decorative textures are absent from the current official tree.
-  if (/^(diamond|square|diagonal_gradient)\.png$/i.test(relativePath)) return transparentPng();
+  // Old decorative textures are absent from the current official asset tree.
+  if (/\.(png|jpg|jpeg|gif)$/i.test(basename)) return transparentPng();
+  // Missing legacy Flixel sound files should not abort the asset preloader.
+  if (/\.(mp3|ogg|wav)$/i.test(basename)) return new Response('', {status: 200, headers: {'Content-Type': 'audio/mpeg'}});
   return new Response('Official asset not found: ' + relativePath, {
     status: 404,
     headers: {'Content-Type': 'text/plain; charset=utf-8'}
