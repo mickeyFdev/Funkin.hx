@@ -5,6 +5,19 @@
 <script>
 const hint = document.getElementById('hint');
 function setHint(text){ hint.firstChild.textContent = text + ' '; }
+async function prepareGameFont(config){
+  const url = config.fontUrl || 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
+  const name = (config.fontName || 'Funkin VCR').replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
+  navigator.serviceWorker.controller?.postMessage({type:'set-font-url', url});
+  const face = new FontFace(name, `url(${JSON.stringify(url)})`, {weight:'700', style:'normal'});
+  try {
+    await face.load();
+    document.fonts.add(face);
+    document.documentElement.style.setProperty('--game-font', `"${name}", system-ui, sans-serif`);
+  } catch (e) {
+    console.warn('ゲーム用HTTPフォントの先行読込に失敗:', e);
+  }
+}
 function loadGameBundle(){
   const script = document.createElement('script');
   let bundleUrl = './Funkin.js';
@@ -27,7 +40,7 @@ function loadGameBundle(){
 (async function(){
   if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); loadGameBundle(); return; }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js?v=9', {scope:'./'});
+    const registration = await navigator.serviceWorker.register('./sw.js?v=11', {scope:'./'});
     await registration.update();
     await navigator.serviceWorker.ready;
     // 新規訪問時も確実に現在のページを制御させる。
@@ -36,14 +49,15 @@ function loadGameBundle(){
       location.reload();
       return;
     }
+    let config = {};
     const saved = localStorage.getItem('funkin-html-editor');
     if (saved) {
       try {
-        const config = JSON.parse(saved);
+        config = JSON.parse(saved);
         if (config.modBase) navigator.serviceWorker.controller.postMessage({type:'set-mod-base', base:config.modBase});
-        if (config.fontUrl) navigator.serviceWorker.controller.postMessage({type:'set-font-url', url:config.fontUrl});
       } catch (_) {}
     }
+    await prepareGameFont(config);
     setHint('公式アセットを準備済み。ゲームを読み込み中…');
     loadGameBundle();
   } catch(e) {
