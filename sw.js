@@ -1,7 +1,8 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v12';
+const CACHE_NAME = 'funkin-assets-v13';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
+let engine = 'official';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
@@ -9,6 +10,7 @@ self.addEventListener('message', event => {
   if (!event.data) return;
   if (event.data.type === 'set-mod-base') modBase = String(event.data.base || '').replace(/\/$/, '') + (event.data.base ? '/' : '');
   if (event.data.type === 'set-font-url') fontUrl = String(event.data.url || '');
+  if (event.data.type === 'set-engine') engine = String(event.data.engine || 'official');
 });
 
 self.addEventListener('fetch', event => {
@@ -46,9 +48,10 @@ async function resolveAsset(relativePath) {
   if (relativePath.startsWith('fonts/')) candidates.push(CDN + relativePath);
   // Map the engine's virtual assets/data path directly to the official CDN.
   // This avoids waiting for several guaranteed 404 fallbacks on desktop.
-  if (relativePath.startsWith('data/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
-  else if (relativePath.startsWith('songs/')) candidates.push(CDN + relativePath);
-  else if (relativePath.startsWith('music/') || relativePath.startsWith('sounds/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
+  if (relativePath.startsWith('data/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath, CDN + relativePath);
+  else if (relativePath.startsWith('images/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath, CDN + relativePath);
+  else if (relativePath.startsWith('songs/')) candidates.push(CDN + relativePath, CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
+  else if (relativePath.startsWith('music/') || relativePath.startsWith('sounds/')) candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath, CDN + relativePath);
   else if (/^(preload|shared|week\d+|weekend\d+)\//i.test(relativePath)) candidates.push(CDN + relativePath);
   else candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
   const cache = await caches.open(CACHE_NAME);
