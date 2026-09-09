@@ -15,7 +15,8 @@ self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
-    event.respondWith(new Response('{}', {status: 200, headers: {'Content-Type': 'application/json'}}));
+    const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
+    event.respondWith(resolveManifest(manifestName));
     return;
   }
   const marker = '/assets/';
@@ -36,7 +37,7 @@ async function resolveAsset(relativePath) {
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
   if (legacy[basename]) candidates.push(CDN + legacy[basename]);
   if (relativePath.startsWith('fonts/')) candidates.push(CDN + relativePath);
-  if (/^(preload|shared|songs|week\d+|weekend\d+)\//i.test(relativePath)) candidates.push(CDN + relativePath);
+  if (/^(manifest|preload|shared|songs|week\d+|weekend\d+)\//i.test(relativePath)) candidates.push(CDN + relativePath);
   candidates.push(CDN + 'preload/' + relativePath, CDN + 'shared/' + relativePath);
   const cache = await caches.open(CACHE_NAME);
   for (const url of candidates) {
@@ -49,6 +50,8 @@ async function resolveAsset(relativePath) {
   }
   if (/\.(png|jpg|jpeg|gif)$/i.test(basename)) return transparentPng();
   if (/\.(mp3|ogg|wav)$/i.test(basename)) return new Response('', {status:200,headers:{'Content-Type':'audio/mpeg'}});
+  if (/\.json$/i.test(basename)) return new Response('{}', {status:200,headers:{'Content-Type':'application/json'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
 }
+async function resolveManifest(name){return resolveAsset('manifest/'+name)}
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
