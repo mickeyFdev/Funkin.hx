@@ -40,7 +40,7 @@ function loadGameBundle(){
 (async function(){
   if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); loadGameBundle(); return; }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js?v=13', {scope:'./'});
+    const registration = await navigator.serviceWorker.register('./sw.js?v=14', {scope:'./'});
     await registration.update();
     await navigator.serviceWorker.ready;
     // 新規訪問時も確実に現在のページを制御させる。
@@ -56,6 +56,7 @@ function loadGameBundle(){
         config = JSON.parse(saved);
         if (config.modBase) navigator.serviceWorker.controller.postMessage({type:'set-mod-base', base:config.modBase});
         navigator.serviceWorker.controller.postMessage({type:'set-engine', engine:config.engine || 'official'});
+        if (config.runtimeBase) navigator.serviceWorker.controller.postMessage({type:'set-runtime-base', base:config.runtimeBase});
       } catch (_) {}
     }
     await prepareGameFont(config);
