@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v9';
+const CACHE_NAME = 'funkin-assets-v11';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 
@@ -14,6 +14,10 @@ self.addEventListener('message', event => {
 self.addEventListener('fetch', event => {
   const requestUrl = new URL(event.request.url);
   if (requestUrl.origin !== self.location.origin) return;
+  if (/\/favicon\.svg$/i.test(requestUrl.pathname)) {
+    event.respondWith(faviconSvg());
+    return;
+  }
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
     const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
     event.respondWith(resolveManifest(manifestName));
@@ -55,3 +59,4 @@ async function resolveAsset(relativePath) {
 }
 async function resolveManifest(name){return resolveAsset('manifest/'+name)}
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
+function faviconSvg(){return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#171827"/><path d="M14 18h36v8H22v7h22v8H22v13h-8z" fill="#ff4fa3"/><circle cx="47" cy="47" r="6" fill="#43d9ff"/></svg>',{status:200,headers:{'Content-Type':'image/svg+xml','Cache-Control':'public,max-age=31536000'}})}
