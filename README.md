@@ -28,6 +28,8 @@
 
 初回アクセス時はService Workerの登録後に自動で1回リロードします。**GitHub PagesのHTTPS上で開いてください**。`file://` や一部のプレビューURLではService Workerが動作しません。ブラウザに古い404が残る場合は、ハードリロード（Ctrl+Shift+R）してください。
 
+読み込み速度対策として、公式アセットはまず `preload/` を参照し、見つからない場合だけ `shared/` を参照します。取得に成功したファイルはブラウザキャッシュへ保存されるため、2回目以降の起動は速くなります。編集画面を開いた時点でService Worker登録も開始します。
+
 ワークフローはビルドサーバーを必要とせず、静的ファイルをそのままPagesへ配置します。GitHub PagesではHTTPSで配信されるため、GitHub API、CDN、Service Workerが利用できます。
 
 ## ローカルで確認する場合
