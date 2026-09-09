@@ -7,7 +7,12 @@ const hint = document.getElementById('hint');
 function setHint(text){ hint.firstChild.textContent = text + ' '; }
 function loadGameBundle(){
   const script = document.createElement('script');
-  script.src = 'Funkin.js';
+  let bundleUrl = './Funkin.js';
+  try {
+    const saved = JSON.parse(localStorage.getItem('funkin-html-editor') || '{}');
+    if (saved.bundleUrl && !saved.bundleUrl.includes('raw.githubusercontent.com/mickeyFdev/Funkin.hx')) bundleUrl = saved.bundleUrl;
+  } catch (_) {}
+  script.src = bundleUrl;
   script.onload = () => {
     try {
       if(window.lime && typeof window.lime.embed === 'function') {
@@ -16,7 +21,7 @@ function loadGameBundle(){
       } else setHint('Funkin.js のLime embed APIが見つかりません。');
     } catch(e) { setHint('起動エラー: ' + e.message); console.error(e); }
   };
-  script.onerror = () => setHint('Funkin.jsを読み込めません。');
+  script.onerror = () => setHint('ゲーム本体JSをHTTPから読み込めません: ' + bundleUrl);
   document.body.appendChild(script);
 }
 (async function(){
