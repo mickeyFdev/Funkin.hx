@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v15';
+const CACHE_NAME = 'funkin-assets-v17';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -66,18 +66,29 @@ async function resolveAsset(relativePath) {
     const cached = await cache.match(url);
     if (cached) return cached;
     try {
-      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(5000)});
+      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(2500)});
       if (response.ok) { cache.put(url, response.clone()).catch(() => {}); return response; }
     } catch (_) {}
   }
   if (/\.(png|jpg|jpeg|gif)$/i.test(basename)) return transparentPng();
-  // Do not return an empty 200 response for missing audio/JSON. OpenFL's
-  // loader treats that as a successful load and can wait forever during the
-  // final game loading phase. A real 404 lets the bundle fail gracefully.
-  if (/\.(mp3|ogg|wav)$/i.test(basename)) return new Response('', {status:404,headers:{'Content-Type':'audio/mpeg'}});
-  if (/\.json$/i.test(basename)) return new Response('{}', {status:404,headers:{'Content-Type':'application/json'}});
+  // OpenFL/Lime waits for a completion event for every queued asset. Returning
+  // a 404 (or an empty audio body) for an optional legacy asset can leave the
+  // final loading screen waiting forever. Use a tiny valid silent WAV so the
+  // request still completes and keep JSON syntactically valid for optional
+  // metadata files.
+  if (/\.(mp3|ogg|wav)$/i.test(basename)) return silentWav();
+  if (/\.json$/i.test(basename)) return new Response('{}', {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
 }
-async function resolveManifest(name){return resolveAsset('manifest/'+name)}
+// The published asset repository does not ship Lime's generated library
+// manifests. Returning an empty, valid manifest immediately prevents the
+// OpenFL preloader from waiting on several guaranteed CDN 404s.
+async function resolveManifest(name){
+  return new Response(JSON.stringify({version:2,name,assets:[]}),{
+    status:200,
+    headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
+  });
+}
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
+function silentWav(){const bytes=Uint8Array.from(atob('UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAESEAAABAAgAZGF0YQAAAAAA'),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'audio/wav','Cache-Control':'public,max-age=31536000'}})}
 function faviconSvg(){return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#171827"/><path d="M14 18h36v8H22v7h22v8H22v13h-8z" fill="#ff4fa3"/><circle cx="47" cy="47" r="6" fill="#43d9ff"/></svg>',{status:200,headers:{'Content-Type':'image/svg+xml','Cache-Control':'public,max-age=31536000'}})}
