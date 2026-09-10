@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v19';
+const CACHE_NAME = 'funkin-assets-v20';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -83,7 +83,7 @@ async function resolveAsset(relativePath) {
 async function resolveManifest(name){
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
-  if (runtimeBase && (engine === 'psych' || engine === 'manny')) {
+  if (runtimeBase) {
     candidates.push(runtimeBase + 'manifest/' + name);
   }
   const cache = await caches.open(CACHE_NAME);
