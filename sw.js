@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v17';
+const CACHE_NAME = 'funkin-assets-v19';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -80,10 +80,27 @@ async function resolveAsset(relativePath) {
   if (/\.json$/i.test(basename)) return new Response('{}', {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
 }
-// The published asset repository does not ship Lime's generated library
-// manifests. Returning an empty, valid manifest immediately prevents the
-// OpenFL preloader from waiting on several guaranteed CDN 404s.
 async function resolveManifest(name){
+  const candidates = [];
+  if (modBase) candidates.push(modBase + 'manifest/' + name);
+  if (runtimeBase && (engine === 'psych' || engine === 'manny')) {
+    candidates.push(runtimeBase + 'manifest/' + name);
+  }
+  const cache = await caches.open(CACHE_NAME);
+  for (const url of candidates) {
+    const cached = await cache.match(url);
+    if (cached) return cached;
+    try {
+      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(2500)});
+      if (response.ok) {
+        cache.put(url, response.clone()).catch(() => {});
+        return response;
+      }
+    } catch (_) {}
+  }
+  // The official asset repository does not ship Lime's generated manifests.
+  // Keep the fallback valid so missing optional libraries do not deadlock the
+  // OpenFL preloader.
   return new Response(JSON.stringify({version:2,name,assets:[]}),{
     status:200,
     headers:{'Content-Type':'application/json','Cache-Control':'no-store'}

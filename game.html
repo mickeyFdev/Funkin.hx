@@ -21,16 +21,18 @@ async function prepareGameFont(config){
 function loadGameBundle(){
   const script = document.createElement('script');
   let bundleUrl = './Funkin.js';
+  let projectName = 'Funkin';
   try {
     const saved = JSON.parse(localStorage.getItem('funkin-html-editor') || '{}');
     if (saved.bundleUrl && !saved.bundleUrl.includes('raw.githubusercontent.com/mickeyFdev/Funkin.hx')) bundleUrl = saved.bundleUrl;
+    if (saved.engine === 'psych' || saved.engine === 'manny') projectName = 'PsychEngine';
   } catch (_) {}
   script.src = bundleUrl;
   script.onload = () => {
     try {
       if(window.lime && typeof window.lime.embed === 'function') {
         setHint('ゲームを起動中…');
-        window.lime.embed('Funkin','openfl-content',1280,720,{resizable:true});
+        window.lime.embed(projectName,'openfl-content',1280,720,{resizable:true,parameters:{}});
       } else setHint('Funkin.js のLime embed APIが見つかりません。');
     } catch(e) { setHint('起動エラー: ' + e.message); console.error(e); }
   };
@@ -40,7 +42,7 @@ function loadGameBundle(){
 (async function(){
   if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); loadGameBundle(); return; }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js?v=17', {scope:'./'});
+    const registration = await navigator.serviceWorker.register('./sw.js?v=19', {scope:'./'});
     await registration.update();
     await navigator.serviceWorker.ready;
     // 新規訪問時も確実に現在のページを制御させる。

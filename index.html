@@ -42,13 +42,13 @@
 <script>
 const $=id=>document.getElementById(id); let files=[]; let selected=null; let runtimeBase='';
 // ゲーム画面を開く前にアセット中継を準備して、初回の再読み込み待ちを減らす。
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=17',{scope:'./'}).catch(()=>{});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=19',{scope:'./'}).catch(()=>{});
 const defaults={title:'My Funkin Mod',accent:'#ff4fa3',background:'#11121a',treeUrl:$('treeUrl').value,assetBase:$('assetBase').value,modTreeUrl:'',modBase:'',engine:'official',bundleUrl:'./Funkin.js',fontUrl:'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf',fontName:'Funkin VCR'};
 function setStatus(t,ok=true){$('status').textContent=t;$('status').style.color=ok?'var(--green)':'#ff879f'}
 const enginePresets={
   official:{tree:'https://api.github.com/repos/FunkinCrew/funkin.assets/git/trees/main?recursive=1',base:'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/',runtimeBase:'',modTree:'',modBase:'',bundle:'./Funkin.js'},
-  psych:{tree:'https://api.github.com/repos/ShadowMario/FNF-PsychEngine/git/trees/main?recursive=1',base:'https://cdn.jsdelivr.net/gh/ShadowMario/FNF-PsychEngine@main/',runtimeBase:'https://cdn.jsdelivr.net/gh/ShadowMario/FNF-PsychEngine@main/assets/',modTree:'',modBase:'',bundle:'./Funkin.js'},
-  manny:{tree:'https://api.github.com/repos/ShadowMario/FNF-PsychEngine/git/trees/main?recursive=1',base:'https://cdn.jsdelivr.net/gh/ShadowMario/FNF-PsychEngine@main/',runtimeBase:'https://cdn.jsdelivr.net/gh/ShadowMario/FNF-PsychEngine@main/assets/',modTree:'',modBase:'',bundle:'./Funkin.js'},
+  psych:{tree:'https://api.github.com/repos/CrozeStudios/FOUNDATION-FNF-HTML5-Port/git/trees/master?recursive=1',base:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',runtimeBase:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',modTree:'',modBase:'',bundle:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/PsychEngine.js'},
+  manny:{tree:'https://api.github.com/repos/CrozeStudios/FOUNDATION-FNF-HTML5-Port/git/trees/master?recursive=1',base:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',runtimeBase:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',modTree:'',modBase:'',bundle:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/PsychEngine.js'},
   forever:{tree:'https://api.github.com/repos/zerrvyx/Forever-Engine-Legacy/git/trees/master?recursive=1',base:'https://cdn.jsdelivr.net/gh/zerrvyx/Forever-Engine-Legacy@master/',runtimeBase:'https://cdn.jsdelivr.net/gh/zerrvyx/Forever-Engine-Legacy@master/assets/',modTree:'',modBase:'',bundle:'./Funkin.js'},
   kade:{tree:'https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1',base:'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/',runtimeBase:'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/assets/',modTree:'',modBase:'',bundle:'./Funkin.js'}
 };
