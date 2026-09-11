@@ -53,6 +53,17 @@ async function resolveAsset(relativePath) {
   if (engine === 'kade' && runtimeBase && /^images\/icons\/icon-[^/]+\.png$/i.test(relativePath)) {
     candidates.push(runtimeBase + 'assets/preload/' + relativePath);
   }
+  // Kade stores chart metadata below assets/preload/data/songs and gameplay
+  // audio below assets/songs. These paths are requested through Lime's
+  // virtual `data/...` and `songs/...` names when a song starts; resolve them
+  // before the generic candidates to avoid a long chain of failed requests.
+  if (engine === 'kade' && runtimeBase) {
+    if (/^data\/[^/]+\//i.test(relativePath)) {
+      candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice(5));
+    } else if (/^songs\//i.test(relativePath)) {
+      candidates.push(runtimeBase + 'assets/' + relativePath);
+    }
+  }
   // Keep the engine's own VCR face on desktop; replacing vcr.ttf with a UI
   // font changes Canvas/Lime glyph metrics and makes the game look wrong.
   if (isEngineFont && runtimeBase && isFont) candidates.push(runtimeBase + relativePath, runtimeBase + 'assets/' + relativePath);
@@ -63,8 +74,6 @@ async function resolveAsset(relativePath) {
     else if (engine === 'kade') {
       candidates.push(runtimeBase + 'assets/preload/' + relativePath, runtimeBase + 'assets/' + relativePath, runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
       if (/^music\/.*\.mp3$/i.test(relativePath)) candidates.push(runtimeBase + 'assets/preload/' + relativePath.replace(/\.mp3$/i, '.ogg'));
-      if (/^data\/[^/]+\//i.test(relativePath)) candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice(5));
-      if (/^songs\//i.test(relativePath)) candidates.push(runtimeBase + 'assets/' + relativePath);
     }
     else candidates.push(runtimeBase + relativePath);
   }
