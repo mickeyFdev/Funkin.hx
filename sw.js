@@ -63,10 +63,10 @@ async function resolveAsset(relativePath) {
   // repository stores the Freeplay sprites under assets/preload/images/icons.
   // Resolve that exact path first so a generic fallback cannot be used for a
   // Kade Freeplay icon.
-  if (engine === 'kade' && runtimeBase && /^images\/icons\/icon-[^/]+\.png$/i.test(relativePath)) {
+  if (/^images\/icons\/icon-[^/]+\.png$/i.test(relativePath)) {
     // Kade icons are 300x150 two-frame PNGs. Do not let a failed icon request
     // fall through to alphabet/symbol or generic image candidates.
-    const iconUrl = runtimeBase + 'assets/preload/' + relativePath;
+    const iconUrl = 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/assets/preload/' + relativePath;
     const iconCache = await caches.open(CACHE_NAME);
     const iconCached = await iconCache.match(iconUrl);
     if (iconCached && isImageResponse(iconCached)) return iconCached;
