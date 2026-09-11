@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v37';
+const CACHE_NAME = 'funkin-assets-v38';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -54,6 +54,8 @@ async function resolveAsset(relativePath) {
     else if (engine === 'kade') {
       candidates.push(runtimeBase + 'assets/preload/' + relativePath, runtimeBase + 'assets/' + relativePath, runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
       if (/^music\/.*\.mp3$/i.test(relativePath)) candidates.push(runtimeBase + 'assets/preload/' + relativePath.replace(/\.mp3$/i, '.ogg'));
+      if (/^data\/[^/]+\//i.test(relativePath)) candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice(5));
+      if (/^songs\//i.test(relativePath)) candidates.push(runtimeBase + 'assets/' + relativePath);
     }
     else candidates.push(runtimeBase + relativePath);
   }
