@@ -31,6 +31,10 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
+    // Kade manifests are generated and committed under this site's manifest/
+    // directory. Let the normal GitHub Pages response through; intercepting
+    // it with an empty fallback would hide the real library asset list.
+    if (engine === 'kade') return;
     const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
     event.respondWith(resolveManifest(manifestName));
     return;
