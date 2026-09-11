@@ -136,6 +136,10 @@ function isImageResponse(response) {
   return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
+  // Kade does not commit generated manifest/*.json files. Build the library
+  // index from its official tree immediately; never request the page's
+  // /manifest/*.json or a nonexistent Kade CDN manifest first.
+  if (engine === 'kade') return buildKadeManifest(name);
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
   if (runtimeBase) {
@@ -153,7 +157,6 @@ async function resolveManifest(name){
       }
     } catch (_) {}
   }
-  if (engine === 'kade') return buildKadeManifest(name);
   return new Response(`Kade manifest not found: ${name}`, {
     status: 404,
     headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}
