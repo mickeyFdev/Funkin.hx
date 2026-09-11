@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v26';
+const CACHE_NAME = 'funkin-assets-v27';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -32,7 +32,7 @@ self.addEventListener('fetch', event => {
   if (requestUrl.pathname.includes(marker)) relativePath = decodeURIComponent(requestUrl.pathname.slice(requestUrl.pathname.indexOf(marker) + marker.length));
   else if (requestUrl.pathname.includes('/flixel/')) relativePath = decodeURIComponent(requestUrl.pathname.slice(requestUrl.pathname.indexOf('/flixel/') + 1));
   else if (/\/(default|circle|diamond|square|diagonal_gradient|button)\.png$/i.test(requestUrl.pathname) || /\/vcr-bmp\.(fnt|png)$/i.test(requestUrl.pathname)) relativePath = decodeURIComponent(requestUrl.pathname.split('/').pop());
-  else if (engine === 'kade' && /\.(txt|xml|json|mp3|ogg|wav|png|jpe?g|gif|ttf|otf|fnt)$/i.test(requestUrl.pathname)) relativePath = decodeURIComponent(requestUrl.pathname.replace(/^\/+/,''));
+  else if ((engine === 'psych' || engine === 'kade') && /\.(txt|xml|json|mp3|ogg|wav|png|jpe?g|gif|ttf|otf|fnt)$/i.test(requestUrl.pathname)) relativePath = decodeURIComponent(requestUrl.pathname.replace(/^\/+/,''));
   else return;
   event.respondWith(resolveAsset(relativePath));
 });
