@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v22';
+const CACHE_NAME = 'funkin-assets-v23';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -49,8 +49,8 @@ async function resolveAsset(relativePath) {
   if (fontUrl && isFont && !isEngineFont && !isOfficialVcr && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
   if (modBase) candidates.push(modBase + relativePath);
   if (runtimeBase) {
-    if (engine === 'psych' || engine === 'manny') candidates.push(runtimeBase + 'shared/' + relativePath, runtimeBase + relativePath);
-    else if (engine === 'kade') candidates.push(runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
+    if (engine === 'psych' || engine === 'manny') candidates.push(runtimeBase + 'assets/' + relativePath, runtimeBase + 'shared/' + relativePath, runtimeBase + relativePath);
+    else if (engine === 'kade') candidates.push(runtimeBase + 'assets/' + relativePath, runtimeBase + relativePath, runtimeBase + 'preload/' + relativePath);
     else candidates.push(runtimeBase + relativePath);
   }
   if (legacy[basename]) candidates.push(CDN + legacy[basename]);
