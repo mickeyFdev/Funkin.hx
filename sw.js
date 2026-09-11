@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v41';
+const CACHE_NAME = 'funkin-assets-v42';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -131,10 +131,18 @@ async function resolveManifest(name){
       }
     } catch (_) {}
   }
-  // The official asset repository does not ship Lime's generated manifests.
-  // Keep the fallback valid so missing optional libraries do not deadlock the
-  // OpenFL preloader.
-  return new Response(JSON.stringify({version:2,name,assets:'ah'}),{
+  // The Kade source repository does not ship Lime's generated manifests. Keep
+  // the fallback in the same shape as Lime's generated manifest (including
+  // the optional fields) so AssetManifest can parse it and continue with the
+  // embedded library instead of leaving the preloader on a black screen.
+  return new Response(JSON.stringify({
+    name: null,
+    assets: 'ah',
+    rootPath: null,
+    version: 2,
+    libraryArgs: [],
+    libraryType: null
+  }),{
     status:200,
     headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
   });
