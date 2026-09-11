@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v21';
+const CACHE_NAME = 'funkin-assets-v22';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -41,10 +41,12 @@ async function resolveAsset(relativePath) {
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
   const candidates = [];
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
+  const isEngineFont = engine === 'psych' || engine === 'manny' || engine === 'kade';
   const isOfficialVcr = /^vcr(?:-bold)?\.ttf$/i.test(basename);
   // Keep the engine's own VCR face on desktop; replacing vcr.ttf with a UI
   // font changes Canvas/Lime glyph metrics and makes the game look wrong.
-  if (fontUrl && isFont && !isOfficialVcr && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
+  if (isEngineFont && runtimeBase && isFont) candidates.push(runtimeBase + relativePath, runtimeBase + 'assets/' + relativePath);
+  if (fontUrl && isFont && !isEngineFont && !isOfficialVcr && (relativePath.startsWith('fonts/') || relativePath.startsWith('flixel/fonts/'))) candidates.push(fontUrl);
   if (modBase) candidates.push(modBase + relativePath);
   if (runtimeBase) {
     if (engine === 'psych' || engine === 'manny') candidates.push(runtimeBase + 'shared/' + relativePath, runtimeBase + relativePath);

@@ -6,8 +6,11 @@
 const hint = document.getElementById('hint');
 function setHint(text){ hint.firstChild.textContent = text + ' '; }
 async function prepareGameFont(config){
-  const url = config.fontUrl || 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
-  const name = (config.fontName || 'Funkin VCR').replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
+  const engineFont = /^(psych|manny|kade)$/.test(config.engine || '') && config.runtimeBase
+    ? config.runtimeBase.replace(/\/$/,'') + '/assets/fonts/vcr.ttf'
+    : (config.fontUrl || 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf');
+  const url = engineFont;
+  const name = (/^(psych|manny|kade)$/.test(config.engine || '') ? 'Engine VCR' : (config.fontName || 'Funkin VCR')).replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
   navigator.serviceWorker.controller?.postMessage({type:'set-font-url', url});
   const face = new FontFace(name, `url(${JSON.stringify(url)})`, {weight:'700', style:'normal'});
   try {
@@ -42,7 +45,7 @@ function loadGameBundle(){
 (async function(){
   if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); loadGameBundle(); return; }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js?v=21', {scope:'./'});
+    const registration = await navigator.serviceWorker.register('./sw.js?v=22', {scope:'./'});
     await registration.update();
     await navigator.serviceWorker.ready;
     // 新規訪問時も確実に現在のページを制御させる。
