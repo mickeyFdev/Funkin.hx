@@ -9,10 +9,11 @@ self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 self.addEventListener('message', event => {
   if (!event.data) return;
-  if (event.data.type === 'set-mod-base') modBase = String(event.data.base || '').replace(/\/$/, '') + (event.data.base ? '/' : '');
+  if (event.data.type === 'set-mod-base') modBase = String(event.data.base || '').replace(/\/$/,'') + (event.data.base ? '/' : '');
   if (event.data.type === 'set-font-url') fontUrl = String(event.data.url || '');
   if (event.data.type === 'set-engine') engine = String(event.data.engine || 'official');
-  if (event.data.type === 'set-runtime-base') runtimeBase = String(event.data.base || '').replace(/\/$/, '') + (event.data.base ? '/' : '');
+  if (event.data.type === 'set-runtime-base') runtimeBase = String(event.data.base || '').replace(/\/$/,'') + (event.data.base ? '/' : '');
+  if (event.ports && event.ports[0]) event.ports[0].postMessage({type:'settings-applied', setting:event.data.type});
 });
 
 self.addEventListener('fetch', event => {

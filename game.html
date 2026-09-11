@@ -6,6 +6,16 @@
 <script>
 const hint = document.getElementById('hint'); window.addEventListener('load',()=>{setTimeout(()=>document.getElementById('boot-loader')?.classList.add('done'),650)});
 function setHint(text){ hint.firstChild.textContent = text + ' '; }
+function applyServiceWorkerSetting(message){
+  const controller = navigator.serviceWorker.controller;
+  if (!controller) return Promise.resolve();
+  return new Promise(resolve => {
+    const channel = new MessageChannel();
+    const timer = setTimeout(resolve, 1000);
+    channel.port1.onmessage = () => { clearTimeout(timer); resolve(); };
+    controller.postMessage(message, [channel.port2]);
+  });
+}
 async function prepareGameFont(config){
   const engineFont = /^(psych|kade)$/.test(config.engine || '') && config.runtimeBase
     ? config.runtimeBase.replace(/\/$/,'') + '/assets/fonts/vcr.ttf'
@@ -74,9 +84,9 @@ function loadGameBundle(){
         if (/^(psych|kade)$/.test(config.engine || '') && !config.runtimeBase) {
           config.runtimeBase = runtimes[config.engine];
         }
-        if (config.modBase) navigator.serviceWorker.controller.postMessage({type:'set-mod-base', base:config.modBase});
-        navigator.serviceWorker.controller.postMessage({type:'set-engine', engine:config.engine || 'official'});
-        if (config.runtimeBase) navigator.serviceWorker.controller.postMessage({type:'set-runtime-base', base:config.runtimeBase});
+        if (config.modBase) await applyServiceWorkerSetting({type:'set-mod-base', base:config.modBase});
+        await applyServiceWorkerSetting({type:'set-engine', engine:config.engine || 'official'});
+        if (config.runtimeBase) await applyServiceWorkerSetting({type:'set-runtime-base', base:config.runtimeBase});
       } catch (_) {}
     }
     await prepareGameFont(config);
