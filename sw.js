@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v36';
+const CACHE_NAME = 'funkin-assets-v37';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -51,7 +51,10 @@ async function resolveAsset(relativePath) {
   if (modBase) candidates.push(modBase + relativePath);
   if (runtimeBase) {
     if (engine === 'psych') candidates.push(runtimeBase + 'assets/' + relativePath, runtimeBase + 'shared/' + relativePath, runtimeBase + relativePath);
-    else if (engine === 'kade') candidates.push(runtimeBase + 'assets/preload/' + relativePath, runtimeBase + 'assets/' + relativePath, runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
+    else if (engine === 'kade') {
+      candidates.push(runtimeBase + 'assets/preload/' + relativePath, runtimeBase + 'assets/' + relativePath, runtimeBase + 'preload/' + relativePath, runtimeBase + relativePath);
+      if (/^music\/.*\.mp3$/i.test(relativePath)) candidates.push(runtimeBase + 'assets/preload/' + relativePath.replace(/\.mp3$/i, '.ogg'));
+    }
     else candidates.push(runtimeBase + relativePath);
   }
   if (legacy[basename]) candidates.push(CDN + legacy[basename]);
