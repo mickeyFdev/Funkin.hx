@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v42';
+const CACHE_NAME = 'funkin-assets-v44';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -64,7 +64,20 @@ async function resolveAsset(relativePath) {
   // Resolve that exact path first so a generic fallback cannot be used for a
   // Kade Freeplay icon.
   if (engine === 'kade' && runtimeBase && /^images\/icons\/icon-[^/]+\.png$/i.test(relativePath)) {
-    candidates.push(runtimeBase + 'assets/preload/' + relativePath);
+    // Kade icons are 300x150 two-frame PNGs. Do not let a failed icon request
+    // fall through to alphabet/symbol or generic image candidates.
+    const iconUrl = runtimeBase + 'assets/preload/' + relativePath;
+    const iconCache = await caches.open(CACHE_NAME);
+    const iconCached = await iconCache.match(iconUrl);
+    if (iconCached && isImageResponse(iconCached)) return iconCached;
+    try {
+      const iconResponse = await fetch(iconUrl, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(15000)});
+      if (iconResponse.ok && isImageResponse(iconResponse)) {
+        iconCache.put(iconUrl, iconResponse.clone()).catch(() => {});
+        return iconResponse;
+      }
+    } catch (_) {}
+    return transparentPng();
   }
   // Kade stores chart metadata below assets/preload/data/songs and gameplay
   // audio below assets/songs. These paths are requested through Lime's
