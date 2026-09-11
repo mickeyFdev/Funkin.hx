@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v24';
+const CACHE_NAME = 'funkin-assets-v25';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -80,6 +80,11 @@ async function resolveAsset(relativePath) {
   // metadata files.
   if (/\.(mp3|ogg|wav)$/i.test(basename)) return silentWav();
   if (/\.json$/i.test(basename)) return new Response('{}', {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  // Older song builds request optional dialogue, credits, and atlas files
+  // that are not present in the current official asset repository. A 404
+  // makes Lime's preload queue throw an uncaught exception after song select.
+  if (/\.(txt|hxc)$/i.test(basename)) return new Response('', {status:200,headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}});
+  if (/\.xml$/i.test(basename)) return new Response('<root/>', {status:200,headers:{'Content-Type':'application/xml','Cache-Control':'no-store'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
 }
 async function resolveManifest(name){
