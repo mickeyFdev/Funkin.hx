@@ -59,6 +59,14 @@ function loadGameBundle(){
     if (saved) {
       try {
         config = JSON.parse(saved);
+        // 旧設定にも現在のPsych/Kadeフォント配信先を補完する。
+        const runtimes = {
+          psych: 'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',
+          kade: 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/'
+        };
+        if (/^(psych|kade)$/.test(config.engine || '') && !config.runtimeBase) {
+          config.runtimeBase = runtimes[config.engine];
+        }
         if (config.modBase) navigator.serviceWorker.controller.postMessage({type:'set-mod-base', base:config.modBase});
         navigator.serviceWorker.controller.postMessage({type:'set-engine', engine:config.engine || 'official'});
         if (config.runtimeBase) navigator.serviceWorker.controller.postMessage({type:'set-runtime-base', base:config.runtimeBase});
