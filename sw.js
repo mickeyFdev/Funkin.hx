@@ -22,6 +22,14 @@ self.addEventListener('fetch', event => {
     event.respondWith(faviconSvg());
     return;
   }
+  // These two root-level files are part of Kade's compiled preload list, but
+  // are not guaranteed to be present while GitHub Pages is deploying. They
+  // are informational only; never let them fail the Lime preload queue.
+  const rootText = decodeURIComponent(requestUrl.pathname.split('/').pop() || '');
+  if (rootText === 'do NOT readme.txt' || rootText === 'changelog.txt') {
+    event.respondWith(new Response('', {status:200, headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}}));
+    return;
+  }
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
     const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
     event.respondWith(resolveManifest(manifestName));
