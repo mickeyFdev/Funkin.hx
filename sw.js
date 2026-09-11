@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v44';
+const CACHE_NAME = 'funkin-assets-v46';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -35,6 +35,7 @@ self.addEventListener('fetch', event => {
   // ships freakyMenu.ogg. A Safari-compatible MP3 is committed locally; let
   // GitHub Pages serve it instead of routing the request to the OGG fallback.
   if (/\/assets\/music\/freakyMenu\.mp3$/i.test(requestUrl.pathname)) return;
+  if (/\/assets\/images\/iconGrid\.png$/i.test(requestUrl.pathname)) return;
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
     const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
     event.respondWith(resolveManifest(manifestName));
