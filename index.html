@@ -62,8 +62,21 @@ async function loadTree(){setStatus('公式・MODの全アセット一覧を取�
   function renderTree(){let q=document.createElement('input');q.placeholder='ファイル名を絞り込み…';q.style.margin='8px';q.style.width='calc(100% - 16px)';q.oninput=()=>draw(q.value);$('tree').replaceChildren(q);let box=document.createElement('div');$('tree').append(box);function draw(filter=''){box.innerHTML='';files.filter(f=>f.path.toLowerCase().includes(filter.toLowerCase())).forEach(f=>{let b=document.createElement('button');b.className='file';b.innerHTML=(f.source==='MOD'?'🧩 ':'')+(/\.(png|jpg|jpeg|gif|webp)$/i.test(f.path)?'🖼️':/\.(ogg|mp3|wav)$/i.test(f.path)?'🔊':/\.(ttf|otf|woff2?)$/i.test(f.path)?'🔤':/\.json$/i.test(f.path)?'{}':'📄')+' '+f.path+'<small>'+f.source+'</small>';b.onclick=()=>previewFile(f,b);box.append(b)})}draw()}
 async function previewFile(f,b){document.querySelectorAll('.file').forEach(x=>x.classList.remove('active'));b.classList.add('active');selected=f;let url=f.base.replace(/\/$/,'')+'/'+f.path;$('meta').textContent=url;let p=$('preview');if(/\.(png|jpg|jpeg|gif|webp)$/i.test(f.path)){p.innerHTML='';let im=new Image();im.src=url;im.alt=f.path;im.onerror=()=>p.innerHTML='<div class="empty">画像を表示できませんでした。</div>';p.append(im)}else if(/\.(ogg|mp3|wav)$/i.test(f.path)){p.innerHTML='';let a=document.createElement('audio');a.controls=true;a.src=url;p.append(a)}else if(/\.(ttf|otf|woff2?)$/i.test(f.path)){const name='PreviewFont';document.getElementById('preview-font')?.remove();const s=document.createElement('style');s.id='preview-font';s.textContent='@font-face{font-family:'+name+';src:url("'+url+'");font-display:swap}';document.head.append(s);p.replaceChildren();const sample=document.createElement('div');sample.className='font-sample';sample.style.fontFamily=name+', var(--jp-font)';sample.innerHTML='Funkin<br>MOD Font<br><small>あいうえお　0123456789</small>';const apply=document.createElement('button');apply.className='font-apply';apply.textContent='このフォントを編集画面に適用';apply.onclick=()=>{const fileName=f.path.split('/').pop().replace(/\.(ttf|otf|woff2?)$/i,'').replace(/[_-]+/g,' ');$('fontUrl').value=url;$('fontName').value=fileName||'MyFunkinFont';syncJson();setStatus('選択したフォントを編集画面に適用しました。保存すると次回も使えます。')};p.append(sample,apply)}else if(/\.json$/i.test(f.path)){p.innerHTML='<div class="empty">JSONを取得中…</div>';try{let r=await fetch(url);let t=await r.text();let pre=document.createElement('pre');try{pre.textContent=JSON.stringify(JSON.parse(t),null,2)}catch{pre.textContent=t}p.replaceChildren(pre)}catch(e){p.innerHTML='<div class="empty">取得失敗: '+e.message+'</div>'}}else{p.innerHTML='<div class="empty">このファイル形式はプレビュー対象外です。<br><a href="'+url+'" target="_blank">外部URLを開く</a></div>'}}
   function runShellCommand(){
-    const tokens = $('shellCommand').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const raw = $('shellCommand').value.trim();
+    const tokens = raw.toLowerCase().split(/\s+/).filter(Boolean);
     const engine = tokens[0] || 'official';
+    if(engine === 'help' || engine === '--help' || engine === '-h'){
+      document.body.classList.add('editor-ready');
+      document.getElementById('boot-loader')?.classList.add('done');
+      setStatus('help: official -setting | psych -setting | kade -setting | official | psych | kade | clear');
+      $('shellCommand').value='help';
+      return;
+    }
+    if(engine === 'clear' || engine === 'cls'){
+      $('shellCommand').value='';
+      setStatus('');
+      return;
+    }
     const setting = tokens.includes('-setting') || tokens.includes('--setting');
     if(!enginePresets[engine]){setStatus('command not found: '+engine,false);return;}
     $('engine').value=engine; applyEnginePreset();
