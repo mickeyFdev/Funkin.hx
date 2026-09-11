@@ -6,11 +6,11 @@
 const hint = document.getElementById('hint');
 function setHint(text){ hint.firstChild.textContent = text + ' '; }
 async function prepareGameFont(config){
-  const engineFont = /^(psych|manny|kade)$/.test(config.engine || '') && config.runtimeBase
+  const engineFont = /^(psych|kade)$/.test(config.engine || '') && config.runtimeBase
     ? config.runtimeBase.replace(/\/$/,'') + '/assets/fonts/vcr.ttf'
     : (config.fontUrl || 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf');
   const url = engineFont;
-  const name = (/^(psych|manny|kade)$/.test(config.engine || '') ? 'Engine VCR' : (config.fontName || 'Funkin VCR')).replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
+  const name = (/^(psych|kade)$/.test(config.engine || '') ? 'Engine VCR' : (config.fontName || 'Funkin VCR')).replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
   navigator.serviceWorker.controller?.postMessage({type:'set-font-url', url});
   const face = new FontFace(name, `url(${JSON.stringify(url)})`, {weight:'700', style:'normal'});
   try {
@@ -28,7 +28,7 @@ function loadGameBundle(){
   try {
     const saved = JSON.parse(localStorage.getItem('funkin-html-editor') || '{}');
     if (saved.bundleUrl && !saved.bundleUrl.includes('raw.githubusercontent.com/mickeyFdev/Funkin.hx')) bundleUrl = saved.bundleUrl;
-    if (saved.engine === 'psych' || saved.engine === 'manny') projectName = 'PsychEngine';
+    if (saved.engine === 'psych') projectName = 'PsychEngine';
   } catch (_) {}
   script.src = bundleUrl;
   script.onload = () => {
@@ -45,7 +45,7 @@ function loadGameBundle(){
 (async function(){
   if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); loadGameBundle(); return; }
   try {
-    const registration = await navigator.serviceWorker.register('./sw.js?v=23', {scope:'./'});
+    const registration = await navigator.serviceWorker.register('./sw.js?v=24', {scope:'./'});
     await registration.update();
     await navigator.serviceWorker.ready;
     // 新規訪問時も確実に現在のページを制御させる。
