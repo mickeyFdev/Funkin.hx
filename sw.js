@@ -149,6 +149,7 @@ function isImageResponse(response) {
   return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
+  if (engine === 'kade') return buildKadeManifest(name);
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
   if (runtimeBase) {
@@ -170,6 +171,29 @@ async function resolveManifest(name){
     status: 404,
     headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}
   });
+}
+async function buildKadeManifest(name){
+  const library = String(name).replace(/\.json$/i,'').replace(/[^a-z0-9_-]/gi,'');
+  const allowed = new Set(['songs','shared','week1','week2','week3','week4','week5','week6','tutorial','sm']);
+  if (!allowed.has(library)) return kadeManifestResponse(library, []);
+  try {
+    const r = await fetch('https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1', {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(10000)});
+    if (!r.ok) throw new Error('tree '+r.status);
+    const tree = await r.json();
+    const cdn = 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
+    const assets = (tree.tree || []).filter(x => x.type === 'blob' && x.path.startsWith('assets/'+library+'/') && !/\.ogg$/i.test(x.path)).map(x => ({id:x.path,path:cdn+x.path,type:kadeAssetType(x.path),preload:false,size:1}));
+    return kadeManifestResponse(library, assets);
+  } catch (_) { return kadeManifestResponse(library, []); }
+}
+function kadeManifestResponse(name, assets){
+  return new Response(JSON.stringify({version:3,name,assets,rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+}
+function kadeAssetType(path){
+  if (/\.(png|jpg|jpeg|gif|webp)$/i.test(path)) return 'IMAGE';
+  if (/\.(mp3|ogg|wav|flac|m4a)$/i.test(path)) return /\/music\//i.test(path) ? 'MUSIC' : 'SOUND';
+  if (/\.(ttf|otf|woff2?)$/i.test(path)) return 'FONT';
+  if (/\.(txt|json|xml|hx|lua|hscript|md)$/i.test(path)) return 'TEXT';
+  return 'BINARY';
 }
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
 function silentWav(){const bytes=Uint8Array.from(atob('UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAESEAAABAAgAZGF0YQAAAAAA'),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'audio/wav','Cache-Control':'public,max-age=31536000'}})}
