@@ -35,10 +35,6 @@ self.addEventListener('fetch', event => {
   // GitHub Pages serve it instead of routing the request to the OGG fallback.
   if (/\/assets\/music\/freakyMenu\.mp3$/i.test(requestUrl.pathname)) return;
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
-    // Kade manifests are generated and committed under this site's manifest/
-    // directory. Let the normal GitHub Pages response through; intercepting
-    // it with an empty fallback would hide the real library asset list.
-    if (engine === 'kade') return;
     const manifestName = requestUrl.pathname.slice(requestUrl.pathname.lastIndexOf('/manifest/') + 10);
     event.respondWith(resolveManifest(manifestName));
     return;
@@ -139,12 +135,6 @@ function isImageResponse(response) {
   return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
-  // Kade's JS bundle asks for Lime-generated manifests that are not published
-  // by KadeArchive. Trying the remote candidates here delays every manifest
-  // and can leave Lime waiting for a library that can never be constructed.
-  // Kade assets are resolved on demand by resolveAsset(), so complete this
-  // request immediately with a valid empty manifest.
-  if (engine === 'kade') return emptyManifest(name);
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
   if (runtimeBase) {
@@ -162,12 +152,9 @@ async function resolveManifest(name){
       }
     } catch (_) {}
   }
-  return emptyManifest(name);
-}
-function emptyManifest(name){
-  return new Response(JSON.stringify({name, assets:'ah', rootPath:null, version:2, libraryArgs:[], libraryType:null}),{
-    status:200,
-    headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
+  return new Response(`Kade manifest not found: ${name}`, {
+    status: 404,
+    headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}
   });
 }
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
