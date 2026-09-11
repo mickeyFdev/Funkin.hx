@@ -84,8 +84,10 @@ async function resolveAsset(relativePath) {
   // virtual `data/...` and `songs/...` names when a song starts; resolve them
   // before the generic candidates to avoid a long chain of failed requests.
   if (engine === 'kade' && runtimeBase) {
-    if (/^data\/[^/]+\//i.test(relativePath)) {
-      candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice(5));
+    if (/^data\/songs\//i.test(relativePath)) {
+      candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice('data/songs/'.length));
+    } else if (/^data\/[^/]+\//i.test(relativePath)) {
+      candidates.push(runtimeBase + 'assets/preload/data/' + relativePath.slice(5));
     } else if (/^songs\//i.test(relativePath)) {
       candidates.push(runtimeBase + 'assets/' + relativePath);
     }
