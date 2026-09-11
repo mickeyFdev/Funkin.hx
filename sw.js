@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v39';
+const CACHE_NAME = 'funkin-assets-v40';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -74,13 +74,16 @@ async function resolveAsset(relativePath) {
   const cache = await caches.open(CACHE_NAME);
   for (const url of candidates) {
     const cached = await cache.match(url);
-    if (cached) return cached;
+    if (cached && (!isImagePath(basename) || isImageResponse(cached))) return cached;
     try {
       // Psych Engine のスプライトシートは数MBになるため、短いタイムアウトで
       // 打ち切ると正常な画像を透明PNGへフォールバックして Lime が失敗する。
       const timeout = /\.(png|jpg|jpeg|gif|webp)$/i.test(basename) ? 15000 : 5000;
       const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(timeout)});
-      if (response.ok) { cache.put(url, response.clone()).catch(() => {}); return response; }
+      if (response.ok && (!isImagePath(basename) || isImageResponse(response))) {
+        cache.put(url, response.clone()).catch(() => {});
+        return response;
+      }
     } catch (_) {}
   }
   if (/\.(png|jpg|jpeg|gif)$/i.test(basename)) return transparentPng();
@@ -98,6 +101,10 @@ async function resolveAsset(relativePath) {
   if (/\.xml$/i.test(basename)) return new Response('<root/>', {status:200,headers:{'Content-Type':'application/xml','Cache-Control':'no-store'}});
   if (engine === 'psych' || engine === 'kade') return new Response('', {status:200,headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}});
   return new Response('Official asset not found: '+relativePath, {status:404,headers:{'Content-Type':'text/plain;charset=utf-8'}});
+}
+function isImagePath(name) { return /\.(png|jpg|jpeg|gif|webp)$/i.test(name); }
+function isImageResponse(response) {
+  return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
   const candidates = [];
