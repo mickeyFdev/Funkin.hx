@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v30';
+const CACHE_NAME = 'funkin-assets-v31';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -69,7 +69,10 @@ async function resolveAsset(relativePath) {
     const cached = await cache.match(url);
     if (cached) return cached;
     try {
-      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(2500)});
+      // Psych Engine のスプライトシートは数MBになるため、短いタイムアウトで
+      // 打ち切ると正常な画像を透明PNGへフォールバックして Lime が失敗する。
+      const timeout = /\.(png|jpg|jpeg|gif|webp)$/i.test(basename) ? 15000 : 5000;
+      const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(timeout)});
       if (response.ok) { cache.put(url, response.clone()).catch(() => {}); return response; }
     } catch (_) {}
   }
