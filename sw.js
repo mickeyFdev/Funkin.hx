@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v31';
+const CACHE_NAME = 'funkin-assets-v32';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -113,7 +113,7 @@ async function resolveManifest(name){
   // The official asset repository does not ship Lime's generated manifests.
   // Keep the fallback valid so missing optional libraries do not deadlock the
   // OpenFL preloader.
-  return new Response(JSON.stringify({version:2,name,assets:[]}),{
+  return new Response(JSON.stringify({version:2,name,assets:'ah'}),{
     status:200,
     headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
   });
