@@ -84,7 +84,12 @@ async function resolveAsset(relativePath) {
   // virtual `data/...` and `songs/...` names when a song starts; resolve them
   // before the generic candidates to avoid a long chain of failed requests.
   if (engine === 'kade' && runtimeBase) {
-    if (/^data\/songs\//i.test(relativePath)) {
+    const chartMatch = relativePath.match(/^data\/(|-easy|-hard)\/([^/]+)\.json$/i);
+    if (chartMatch) {
+      const suffix = chartMatch[1].toLowerCase();
+      const song = chartMatch[2];
+      candidates.push(runtimeBase + 'assets/preload/data/songs/' + song + '/' + song + suffix + '.json');
+    } else if (/^data\/songs\//i.test(relativePath)) {
       candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice('data/songs/'.length));
     } else if (/^data\/[^/]+\//i.test(relativePath)) {
       candidates.push(runtimeBase + 'assets/preload/data/' + relativePath.slice(5));
