@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v42';
+const CACHE_NAME = 'funkin-assets-v43';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -153,10 +153,40 @@ async function resolveManifest(name){
       }
     } catch (_) {}
   }
+  if (engine === 'kade') return buildKadeManifest(name);
   return new Response(`Kade manifest not found: ${name}`, {
     status: 404,
     headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}
   });
+}
+async function buildKadeManifest(name){
+  const library = String(name).replace(/\.json$/i, '').replace(/[^a-z0-9_-]/gi, '');
+  const allowed = new Set(['songs','shared','week1','week2','week3','week4','week5','week6','tutorial','sm']);
+  if (!allowed.has(library)) return new Response(JSON.stringify({version:2,name:library,assets:[],rootPath:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  try {
+    const treeUrl = 'https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1';
+    const response = await fetch(treeUrl, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(10000)});
+    if (!response.ok) throw new Error('Kade tree '+response.status);
+    const tree = await response.json();
+    const cdn = 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
+    const assets = (tree.tree || []).filter(item => item.type === 'blob' && item.path.startsWith('assets/' + library + '/') && !/\.ogg$/i.test(item.path)).map(item => ({
+      id: item.path,
+      path: cdn + item.path,
+      type: kadeAssetType(item.path),
+      preload: false,
+      size: 1
+    }));
+    return new Response(JSON.stringify({version:2,name:library,assets,rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  } catch (error) {
+    return new Response(JSON.stringify({version:2,name:library,assets:[],rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  }
+}
+function kadeAssetType(path){
+  if (/\.(png|jpg|jpeg|gif|webp)$/i.test(path)) return 'IMAGE';
+  if (/\.(mp3|ogg|wav|flac|m4a)$/i.test(path)) return /\/music\//i.test(path) ? 'MUSIC' : 'SOUND';
+  if (/\.(ttf|otf|woff2?)$/i.test(path)) return 'FONT';
+  if (/\.(txt|json|xml|hx|lua|hscript|md)$/i.test(path)) return 'TEXT';
+  return 'BINARY';
 }
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
 function silentWav(){const bytes=Uint8Array.from(atob('UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAESEAAABAAgAZGF0YQAAAAAA'),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'audio/wav','Cache-Control':'public,max-age=31536000'}})}
