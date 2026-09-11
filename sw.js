@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v32';
+const CACHE_NAME = 'funkin-assets-v33';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -105,6 +105,13 @@ async function resolveManifest(name){
     try {
       const response = await fetch(url, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(2500)});
       if (response.ok) {
+        if (engine === 'psych' && /\/manifest\/shared\.json$/i.test(url)) {
+          const manifestText = await response.text();
+          return new Response(addPsychRuntimeAssets(manifestText), {
+            status: 200,
+            headers: {'Content-Type': 'application/json', 'Cache-Control': 'no-store'}
+          });
+        }
         cache.put(url, response.clone()).catch(() => {});
         return response;
       }
@@ -117,6 +124,20 @@ async function resolveManifest(name){
     status:200,
     headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
   });
+}
+function addPsychRuntimeAssets(text) {
+  try {
+    const manifest = JSON.parse(text);
+    const path = 'assets/data/playtime/playtime.json';
+    const encoded = encodeURIComponent(path);
+    const entry = 'oy4:path' + encoded.length + ':' + encoded + 'y4:sizei5740y4:typey4:TEXTy2:id' + encoded.length + ':' + encoded + 'y7:preloadtgh';
+    if (typeof manifest.assets === 'string' && !manifest.assets.includes(encoded)) {
+      manifest.assets = manifest.assets.slice(0, -1) + entry + 'h';
+    }
+    return JSON.stringify(manifest);
+  } catch (_) {
+    return text;
+  }
 }
 function transparentPng(){const bytes=Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII='),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'image/png','Cache-Control':'public,max-age=31536000'}})}
 function silentWav(){const bytes=Uint8Array.from(atob('UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAESEAAABAAgAZGF0YQAAAAAA'),c=>c.charCodeAt(0));return new Response(bytes,{status:200,headers:{'Content-Type':'audio/wav','Cache-Control':'public,max-age=31536000'}})}
