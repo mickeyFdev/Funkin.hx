@@ -10,7 +10,9 @@ async function prepareGameFont(config){
     ? config.runtimeBase.replace(/\/$/,'') + '/assets/fonts/vcr.ttf'
     : (config.fontUrl || 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf');
   const url = engineFont;
-  const name = (/^(psych|kade)$/.test(config.engine || '') ? 'Engine VCR' : (config.fontName || 'Funkin VCR')).replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
+  // Kade/PsychのHaxe側はフォントを「VCR OSD Mono」という正式名で参照する。
+  // 別名で登録するとPCではCanvasが通常のmonospaceへフォールバックする。
+  const name = (/^(psych|kade)$/.test(config.engine || '') ? 'VCR OSD Mono' : (config.fontName || 'Funkin VCR')).replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
   navigator.serviceWorker.controller?.postMessage({type:'set-font-url', url});
   const face = new FontFace(name, `url(${JSON.stringify(url)})`, {weight:'700', style:'normal'});
   try {
