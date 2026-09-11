@@ -42,7 +42,7 @@
 <script>
 const $=id=>document.getElementById(id); let files=[]; let selected=null; let runtimeBase='';
 // ゲーム画面を開く前にアセット中継を準備して、初回の再読み込み待ちを減らす。
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=35',{scope:'./'}).catch(()=>{});
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=36',{scope:'./'}).catch(()=>{});
 const defaults={title:'My Funkin Mod',accent:'#ff4fa3',background:'#11121a',treeUrl:$('treeUrl').value,assetBase:$('assetBase').value,modTreeUrl:'',modBase:'',engine:'official',bundleUrl:'./Funkin.js',fontUrl:'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf',fontName:'Funkin VCR'};
 function setStatus(t,ok=true){$('status').textContent=t;$('status').style.color=ok?'var(--green)':'#ff879f'}
 const enginePresets={
