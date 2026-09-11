@@ -165,7 +165,7 @@ async function resolveManifest(name){
 async function buildKadeManifest(name){
   const library = String(name).replace(/\.json$/i, '').replace(/[^a-z0-9_-]/gi, '');
   const allowed = new Set(['songs','shared','week1','week2','week3','week4','week5','week6','tutorial','sm']);
-  if (!allowed.has(library)) return new Response(JSON.stringify({version:2,name:library,assets:[],rootPath:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+  if (!allowed.has(library)) return new Response(JSON.stringify({version:3,name:library,assets:[],rootPath:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   try {
     const treeUrl = 'https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1';
     const response = await fetch(treeUrl, {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(10000)});
@@ -179,9 +179,9 @@ async function buildKadeManifest(name){
       preload: false,
       size: 1
     }));
-    return new Response(JSON.stringify({version:2,name:library,assets,rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+    return new Response(JSON.stringify({version:3,name:library,assets,rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   } catch (error) {
-    return new Response(JSON.stringify({version:2,name:library,assets:[],rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+    return new Response(JSON.stringify({version:3,name:library,assets:[],rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   }
 }
 function kadeAssetType(path){
