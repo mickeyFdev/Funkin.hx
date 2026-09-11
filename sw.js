@@ -57,6 +57,7 @@ async function resolveAsset(relativePath) {
   const basename = relativePath.split('/').pop();
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
   const candidates = [];
+  const kadeBase = runtimeBase || 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
   const isEngineFont = engine === 'psych' || engine === 'kade';
   const isOfficialVcr = /^vcr(?:-bold)?\.ttf$/i.test(basename);
@@ -84,18 +85,18 @@ async function resolveAsset(relativePath) {
   // audio below assets/songs. These paths are requested through Lime's
   // virtual `data/...` and `songs/...` names when a song starts; resolve them
   // before the generic candidates to avoid a long chain of failed requests.
-  if (engine === 'kade' && runtimeBase) {
+  if (engine === 'kade') {
     const chartMatch = relativePath.match(/^data\/([^/]+)\/([^/]+)\.json$/i);
     if (chartMatch) {
       const song = chartMatch[1];
       const chart = chartMatch[2];
-      candidates.push(runtimeBase + 'assets/preload/data/songs/' + song + '/' + chart + '.json');
+      candidates.push(kadeBase + 'assets/preload/data/songs/' + song + '/' + chart + '.json');
     } else if (/^data\/songs\//i.test(relativePath)) {
-      candidates.push(runtimeBase + 'assets/preload/data/songs/' + relativePath.slice('data/songs/'.length));
+      candidates.push(kadeBase + 'assets/preload/data/songs/' + relativePath.slice('data/songs/'.length));
     } else if (/^data\/[^/]+\//i.test(relativePath)) {
-      candidates.push(runtimeBase + 'assets/preload/data/' + relativePath.slice(5));
+      candidates.push(kadeBase + 'assets/preload/data/' + relativePath.slice(5));
     } else if (/^songs\//i.test(relativePath)) {
-      candidates.push(runtimeBase + 'assets/' + relativePath);
+      candidates.push(kadeBase + 'assets/' + relativePath);
     }
   }
   // Keep the engine's own VCR face on desktop; replacing vcr.ttf with a UI
