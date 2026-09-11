@@ -30,6 +30,10 @@ self.addEventListener('fetch', event => {
     event.respondWith(new Response('', {status:200, headers:{'Content-Type':'text/plain;charset=utf-8','Cache-Control':'no-store'}}));
     return;
   }
+  // The Kade Web build requests this exact MP3, while the upstream repo only
+  // ships freakyMenu.ogg. A Safari-compatible MP3 is committed locally; let
+  // GitHub Pages serve it instead of routing the request to the OGG fallback.
+  if (/\/assets\/music\/freakyMenu\.mp3$/i.test(requestUrl.pathname)) return;
   if (requestUrl.pathname.includes('/manifest/') || requestUrl.pathname.includes('manifest/')) {
     // Kade manifests are generated and committed under this site's manifest/
     // directory. Let the normal GitHub Pages response through; intercepting
