@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v38';
+const CACHE_NAME = 'funkin-assets-v39';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -38,6 +38,8 @@ self.addEventListener('fetch', event => {
 });
 
 async function resolveAsset(relativePath) {
+  // Lime/OpenFL Kade audio IDs use virtual prefixes such as songs:assets/songs/... .
+  relativePath = relativePath.replace(/^[^:]+:assets\//i, '');
   const basename = relativePath.split('/').pop();
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
   const candidates = [];
