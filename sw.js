@@ -123,6 +123,12 @@ function isImageResponse(response) {
   return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
+  // Kade's JS bundle asks for Lime-generated manifests that are not published
+  // by KadeArchive. Trying the remote candidates here delays every manifest
+  // and can leave Lime waiting for a library that can never be constructed.
+  // Kade assets are resolved on demand by resolveAsset(), so complete this
+  // request immediately with a valid empty manifest.
+  if (engine === 'kade') return emptyManifest(name);
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
   if (runtimeBase) {
@@ -140,18 +146,10 @@ async function resolveManifest(name){
       }
     } catch (_) {}
   }
-  // The Kade source repository does not ship Lime's generated manifests. Keep
-  // the fallback in the same shape as Lime's generated manifest (including
-  // the optional fields) so AssetManifest can parse it and continue with the
-  // embedded library instead of leaving the preloader on a black screen.
-  return new Response(JSON.stringify({
-    name: null,
-    assets: 'ah',
-    rootPath: null,
-    version: 2,
-    libraryArgs: [],
-    libraryType: null
-  }),{
+  return emptyManifest(name);
+}
+function emptyManifest(name){
+  return new Response(JSON.stringify({name, assets:'ah', rootPath:null, version:2, libraryArgs:[], libraryType:null}),{
     status:200,
     headers:{'Content-Type':'application/json','Cache-Control':'no-store'}
   });
