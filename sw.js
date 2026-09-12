@@ -1,12 +1,15 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v50';
+const CACHE_NAME = 'funkin-assets-v51';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
 let runtimeBase = '';
 
 self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
+self.addEventListener('activate', event => event.waitUntil(
+  caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME && key.startsWith('funkin-assets-')).map(key => caches.delete(key))))
+    .then(() => self.clients.claim())
+));
 self.addEventListener('message', event => {
   if (!event.data) return;
   if (event.data.type === 'set-mod-base') modBase = String(event.data.base || '').replace(/\/$/,'') + (event.data.base ? '/' : '');
