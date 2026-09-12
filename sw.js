@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v47';
+const CACHE_NAME = 'funkin-assets-v48';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -158,6 +158,9 @@ function isImageResponse(response) {
   return /^image\/(png|jpeg|gif|webp)(?:;|$)/i.test(response.headers.get('content-type') || '');
 }
 async function resolveManifest(name){
+  // Kade loads these libraries before the engine setting is always received.
+  // Return immediately so OpenFL does not wait on a missing remote manifest.
+  if (/^(songs|shared|week[1-6]|tutorial|sm)\.json$/i.test(name)) return buildKadeManifest(name);
   if (engine === 'kade') return buildKadeManifest(name);
   const candidates = [];
   if (modBase) candidates.push(modBase + 'manifest/' + name);
