@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v57';
+const CACHE_NAME = 'funkin-assets-v58';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -92,6 +92,14 @@ async function resolveAsset(relativePath) {
       }
     } catch (_) {}
     return transparentPng();
+  }
+  if (/^images\/NOTE_assets\.(png|xml)$/i.test(relativePath)) {
+    const noteFile = relativePath.replace(/^images\/NOTE_assets\./i, '');
+    candidates.push(kadeBase + 'assets/shared/images/noteskins/Arrows.' + noteFile);
+  }
+  if (/^images\/weeb\/pixelUI\/(arrowEnds|arrows-pixels)\.(png|xml)$/i.test(relativePath)) {
+    const pixelFile = relativePath.split('/').pop();
+    candidates.push(kadeBase + 'assets/week6/images/weeb/pixelUI/' + pixelFile);
   }
   // Kade keeps the character atlases in the shared library, while the
   // compiled game requests them as images/<name>.png and .xml.
