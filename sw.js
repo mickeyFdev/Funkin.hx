@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v55';
+const CACHE_NAME = 'funkin-assets-v56';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -95,8 +95,9 @@ async function resolveAsset(relativePath) {
   }
   // Kade keeps the character atlases in the shared library, while the
   // compiled game requests them as images/<name>.png and .xml.
-  if (/^images\/(?:BOYFRIEND|DADDY_DEAREST|GF_assets|Mom_Assets|Monster_Assets|Pico_FNF_assetss|bfCar|gfCar|momCar)\.(png|xml)$/i.test(relativePath)) {
-    const sharedCharacterUrl = kadeBase + 'assets/shared/images/characters/' + basename;
+  const characterPath = relativePath.match(/^images\/(?:characters\/)?([^/]+\.(?:png|xml))$/i);
+  if (characterPath && /^(BOYFRIEND|DADDY_DEAREST|GF_assets|Mom_Assets|Monster_Assets|Pico_FNF_assetss|bfCar|gfCar|momCar)\.(png|xml)$/i.test(characterPath[1])) {
+    const sharedCharacterUrl = kadeBase + 'assets/shared/images/characters/' + characterPath[1];
     candidates.push(sharedCharacterUrl);
   }
   if (/^images\//i.test(relativePath)) {
