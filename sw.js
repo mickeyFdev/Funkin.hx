@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v52';
+const CACHE_NAME = 'funkin-assets-v53';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -205,8 +205,10 @@ async function buildKadeManifest(name){
     const songs = ['tutorial','bopeebo','fresh','dadbattle','spookeez','south','monster','pico','philly','blammed','satin-panties','high','milf','cocoa','eggnog','winter-horrorland','senpai','roses'];
     const assets = [];
     for (const song of songs) {
-      assets.push({id:'assets/songs/'+song+'/Inst.mp3', path:'assets/songs/'+song+'/Inst.mp3', type:'SOUND'});
-      assets.push({id:'assets/songs/'+song+'/Voices.mp3', path:'assets/songs/'+song+'/Voices.mp3', type:'SOUND'});
+      // songs.json is loaded from /manifest/, so paths must step back to the
+      // site root. The IDs remain the virtual Kade IDs used by loadSound().
+      assets.push({id:'assets/songs/'+song+'/Inst.mp3', path:'../assets/songs/'+song+'/Inst.mp3', type:'SOUND'});
+      assets.push({id:'assets/songs/'+song+'/Voices.mp3', path:'../assets/songs/'+song+'/Voices.mp3', type:'SOUND'});
     }
     return kadeManifestResponse(library, assets);
   }
