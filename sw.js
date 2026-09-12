@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v48';
+const CACHE_NAME = 'funkin-assets-v49';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -58,6 +58,9 @@ async function resolveAsset(relativePath) {
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
   const candidates = [];
   const kadeBase = runtimeBase || 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
+  if (/^data\/freeplaySonglist\.txt$/i.test(relativePath)) {
+    candidates.push('https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/assets/preload/data/freeplaySonglist.txt');
+  }
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
   const isEngineFont = engine === 'psych' || engine === 'kade';
   const isOfficialVcr = /^vcr(?:-bold)?\.ttf$/i.test(basename);
@@ -85,7 +88,7 @@ async function resolveAsset(relativePath) {
   // audio below assets/songs. These paths are requested through Lime's
   // virtual `data/...` and `songs/...` names when a song starts; resolve them
   // before the generic candidates to avoid a long chain of failed requests.
-  if (engine === 'kade') {
+  if (engine === 'kade' || /^data\/[^/]+\/[^/]+\.json$/i.test(relativePath)) {
     const chartMatch = relativePath.match(/^data\/([^/]+)\/([^/]+)\.json$/i);
     if (chartMatch) {
       const song = chartMatch[1];
