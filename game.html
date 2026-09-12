@@ -50,6 +50,11 @@ function loadGameBundle(){
     if (saved.bundleUrl && !saved.bundleUrl.includes('raw.githubusercontent.com/mickeyFdev/Funkin.hx')) bundleUrl = saved.bundleUrl;
     if (saved.engine === 'psych') projectName = 'PsychEngine';
     debug = new URLSearchParams(location.search).has('debug') || saved.debug === true || saved.engineDebug === true;
+    if (debug) {
+      document.documentElement.style.cursor = 'default';
+      document.body.style.cursor = 'default';
+      document.getElementById('openfl-content').style.cursor = 'default';
+    }
   } catch (_) {}
   script.src = bundleUrl;
   script.onload = () => {
