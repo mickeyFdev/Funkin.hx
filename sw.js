@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v48';
+const CACHE_NAME = 'funkin-assets-v50';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -58,6 +58,15 @@ async function resolveAsset(relativePath) {
   const isFont = /\.(ttf|otf|woff2?)$/i.test(basename);
   const candidates = [];
   const kadeBase = runtimeBase || 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
+  const kadeDataPath = /^data\/(freeplaySonglist\.txt|[^/]+\/[^/]+\.json)$/i.test(relativePath);
+  if (kadeDataPath) {
+    const file = relativePath.replace(/^data\//i, '');
+    const parts = file.split('/');
+    const url = parts.length === 1
+      ? kadeBase + 'assets/preload/data/' + file
+      : kadeBase + 'assets/preload/data/songs/' + parts[0] + '/' + parts[1];
+    candidates.push(url);
+  }
   const legacy = {'default.png':'preload/images/fonts/default.png','circle.png':'preload/images/pauseCircle.png','button.png':'preload/images/backButton.png','vcr-bmp.fnt':'fonts/vcr-bmp.fnt','vcr-bmp.png':'fonts/vcr-bmp.png','flixel.mp3':'preload/sounds/CS_select.mp3','beep.mp3':'preload/sounds/CS_select.mp3'};
   const isEngineFont = engine === 'psych' || engine === 'kade';
   const isOfficialVcr = /^vcr(?:-bold)?\.ttf$/i.test(basename);
