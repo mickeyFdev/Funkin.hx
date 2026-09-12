@@ -42,19 +42,22 @@ function loadGameBundle(){
   const script = document.createElement('script');
   let bundleUrl = './Funkin.js';
   let projectName = 'Funkin';
-  let debug = new URLSearchParams(location.search).has('debug');
+  let debug = false;
+  let selectedEngine = '';
   try {
     const saved = JSON.parse(localStorage.getItem('funkin-html-editor') || '{}');
+    selectedEngine = saved.engine || '';
     if (saved.bundleUrl && !saved.bundleUrl.includes('raw.githubusercontent.com/mickeyFdev/Funkin.hx')) bundleUrl = saved.bundleUrl;
     if (saved.engine === 'psych') projectName = 'PsychEngine';
-    debug = debug || saved.debug === true || saved.engineDebug === true;
+    debug = new URLSearchParams(location.search).has('debug') || saved.debug === true || saved.engineDebug === true;
   } catch (_) {}
   script.src = bundleUrl;
   script.onload = () => {
     try {
       if(window.lime && typeof window.lime.embed === 'function') {
         setHint('ゲームを起動中…');
-        const parameters = debug ? {debug:true, args:['-debug'], commandLine:['-debug']} : {};
+        const engineName = selectedEngine || projectName;
+        const parameters = debug ? {debug:true, args:[engineName,'-debug'], commandLine:[engineName,'-debug']} : {};
         window.lime.embed(projectName,'openfl-content',1280,720,{resizable:true,parameters});
       } else setHint('Funkin.js のLime embed APIが見つかりません。');
     } catch(e) { setHint('起動エラー: ' + e.message); console.error(e); }
