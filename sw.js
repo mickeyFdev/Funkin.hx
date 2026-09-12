@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v53';
+const CACHE_NAME = 'funkin-assets-v54';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -92,6 +92,15 @@ async function resolveAsset(relativePath) {
       }
     } catch (_) {}
     return transparentPng();
+  }
+  // Kade keeps the character atlases in the shared library, while the
+  // compiled game requests them as images/<name>.png and .xml.
+  if (engine === 'kade' && /^images\/(?:BOYFRIEND|DADDY_DEAREST|GF_assets|Mom_Assets|Monster_Assets|Pico_FNF_assetss|bfCar|gfCar|momCar)\.(png|xml)$/i.test(relativePath)) {
+    const sharedCharacterUrl = kadeBase + 'assets/shared/images/characters/' + basename;
+    candidates.push(sharedCharacterUrl);
+  }
+  if (engine === 'kade' && /^images\//i.test(relativePath)) {
+    candidates.push(kadeBase + 'assets/shared/' + relativePath);
   }
   // Kade stores chart metadata below assets/preload/data/songs and gameplay
   // audio below assets/songs. These paths are requested through Lime's
