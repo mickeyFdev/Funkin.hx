@@ -77,7 +77,7 @@
   const panel = document.createElement('details');
   panel.id = 'kade-debug-panel';
   panel.open = true;
-  panel.innerHTML = `<summary>Kade Debug <span data-role="error-count"></span></summary><div class="kade-debug-actions"><button data-action="song">Test bopeebo</button><button data-action="errors">Errors only</button><button data-action="all">All logs</button><button data-action="download">Download log</button><button data-action="clear">Clear</button></div><pre></pre>`;
+  panel.innerHTML = `<summary>Kade Debug <span data-role="error-count"></span></summary><div class="kade-debug-actions"><button data-action="song">Test bopeebo</button><button data-action="verify">Verify body</button><button data-action="errors">Errors only</button><button data-action="all">All logs</button><button data-action="download">Download log</button><button data-action="clear">Clear</button></div><pre></pre>`;
   const style = document.createElement('style');
   style.textContent = '#kade-debug-panel{position:fixed;z-index:10000;left:8px;bottom:8px;width:min(760px,calc(100vw - 16px));max-height:52vh;background:#10131ded;color:#d7f9ff;border:1px solid #49d9ff;border-radius:6px;font:12px/1.35 monospace;box-shadow:0 4px 20px #0008}#kade-debug-panel summary{cursor:pointer;padding:6px;font-weight:bold;background:#123946}#kade-debug-panel [data-role=error-count]{color:#ff8b8b;margin-left:8px}#kade-debug-panel pre{margin:0;padding:6px;max-height:38vh;overflow:auto;white-space:pre-wrap;word-break:break-word}.kade-debug-actions{display:flex;flex-wrap:wrap;gap:5px;padding:5px}.kade-debug-actions button{background:#1e5362;color:#fff;border:1px solid #75eaff;border-radius:3px;padding:5px 7px;cursor:pointer;touch-action:manipulation}';
   document.head.appendChild(style);
@@ -116,8 +116,27 @@
     add('song.test', results);
     return results;
   };
+  const verifyKadeBodies = async () => {
+    const paths = ['assets/data/freeplaySonglist.txt', 'assets/data/bopeebo/bopeebo.json', 'assets/data/bopeebo/bopeebo-easy.json', 'assets/data/bopeebo/bopeebo-hard.json'];
+    const results = [];
+    for (const path of paths) {
+      const begin = performance.now();
+      try {
+        const response = await original.fetch(`${path}?bodyCheck=${Date.now()}`, {cache: 'no-store'});
+        const text = await response.text();
+        const result = {path, status: response.status, ok: response.ok, contentType: response.headers.get('content-type'), contentLength: response.headers.get('content-length'), bodyChars: text.length, bodyBytes: new TextEncoder().encode(text).byteLength, startsWith: text.slice(0, 120), ms: Math.round(performance.now() - begin)};
+        if (/\.json$/i.test(path)) {
+          try { const parsed = JSON.parse(text); result.jsonSongKeys = parsed.song ? Object.keys(parsed.song) : null; }
+          catch (error) { result.jsonError = error.message; }
+        }
+        results.push(result);
+      } catch (error) { results.push({path, error: clean(error), ms: Math.round(performance.now() - begin)}); }
+    }
+    add('body.verify', results);
+    return results;
+  };
   window.FunkinDebug = {
-    events, errors: errorEvents, testKadeSong,
+    events, errors: errorEvents, testKadeSong, verifyKadeBodies,
     snapshot: () => ({config: localStorage.getItem('funkin-html-editor'), errors: errorEvents, events, resources: resourceSnapshot()}),
     download: () => save(`funkin-debug-${new Date().toISOString().replace(/[:.]/g, '-')}.json`, window.FunkinDebug.snapshot()),
     clear: () => { events.length = 0; errorEvents.length = 0; render(); }
@@ -125,6 +144,7 @@
   panel.addEventListener('click', event => {
     const action = event.target.dataset.action;
     if (action === 'song') testKadeSong();
+    if (action === 'verify') verifyKadeBodies();
     if (action === 'errors') { mode = 'errors'; render(); }
     if (action === 'all') { mode = 'all'; render(); }
     if (action === 'download') window.FunkinDebug.download();
