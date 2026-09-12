@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v46';
+const CACHE_NAME = 'funkin-assets-v47';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -183,16 +183,10 @@ async function resolveManifest(name){
 }
 async function buildKadeManifest(name){
   const library = String(name).replace(/\.json$/i,'').replace(/[^a-z0-9_-]/gi,'');
-  const allowed = new Set(['songs','shared','week1','week2','week3','week4','week5','week6','tutorial','sm']);
-  if (!allowed.has(library)) return kadeManifestResponse(library, []);
-  try {
-    const r = await fetch('https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1', {mode:'cors', credentials:'omit', signal:AbortSignal.timeout(10000)});
-    if (!r.ok) throw new Error('tree '+r.status);
-    const tree = await r.json();
-    const cdn = 'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/';
-    const assets = (tree.tree || []).filter(x => x.type === 'blob' && x.path.startsWith('assets/'+library+'/') && !/\.ogg$/i.test(x.path)).map(x => ({id:x.path,path:cdn+x.path,type:kadeAssetType(x.path),preload:false,size:1}));
-    return kadeManifestResponse(library, assets);
-  } catch (_) { return kadeManifestResponse(library, []); }
+  // Song charts and audio are resolved individually below. Do not fetch the
+  // entire Kade Git tree here: loadLibrary waits for this manifest and that
+  // API request makes every selected song appear stuck on Loading.
+  return kadeManifestResponse(library, []);
 }
 function kadeManifestResponse(name, assets){
   return new Response(JSON.stringify({version:3,name,assets,rootPath:null,libraryArgs:[],libraryType:null}), {status:200,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
