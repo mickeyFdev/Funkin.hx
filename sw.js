@@ -1,5 +1,5 @@
 const CDN = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/';
-const CACHE_NAME = 'funkin-assets-v51';
+const CACHE_NAME = 'funkin-assets-v52';
 let modBase = '';
 let fontUrl = 'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf';
 let engine = 'official';
@@ -201,6 +201,15 @@ async function buildKadeManifest(name){
   // Song charts and audio are resolved individually below. Do not fetch the
   // entire Kade Git tree here: loadLibrary waits for this manifest and that
   // API request makes every selected song appear stuck on Loading.
+  if (library === 'songs') {
+    const songs = ['tutorial','bopeebo','fresh','dadbattle','spookeez','south','monster','pico','philly','blammed','satin-panties','high','milf','cocoa','eggnog','winter-horrorland','senpai','roses'];
+    const assets = [];
+    for (const song of songs) {
+      assets.push({id:'assets/songs/'+song+'/Inst.mp3', path:'assets/songs/'+song+'/Inst.mp3', type:'SOUND'});
+      assets.push({id:'assets/songs/'+song+'/Voices.mp3', path:'assets/songs/'+song+'/Voices.mp3', type:'SOUND'});
+    }
+    return kadeManifestResponse(library, assets);
+  }
   return kadeManifestResponse(library, []);
 }
 function kadeManifestResponse(name, assets){
