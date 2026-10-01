@@ -1,93 +1,125 @@
 <!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23171827'/%3E%3Cpath d='M14 18h36v8H22v7h22v8H22v13h-8z' fill='%23ff4fa3'/%3E%3Ccircle cx='47' cy='47' r='6' fill='%2343d9ff'/%3E%3C/svg%3E" />
-  <title>Funkin HTML Asset Editor</title>
-  <style>
-    :root{--bg:#070b0e;--panel:#0b1215;--panel2:#101b1e;--line:#1d3b3b;--text:#d7ffe8;--muted:#6d9992;--pink:#ff6b9d;--cyan:#50e3d1;--green:#8dffb5;--amber:#ffd166;--jp-font:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--ui-font:"Funkin VCR",var(--jp-font);--display-font:"Funkin VCR",var(--jp-font);--editor-font:var(--ui-font)}
-    @font-face{font-family:"Funkin VCR";src:url("https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf") format("truetype");font-display:swap;font-weight:700}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:13px/1.5 var(--editor-font);letter-spacing:.01em}body:not(.editor-ready) .editor-ui{display:none}body:before{content:"FUNKin shell // asset-editor";display:block;height:28px;padding:7px 18px;color:var(--muted);background:#050708;border-bottom:1px solid var(--line);font:12px/1.2 ui-monospace,monospace} button,input,textarea,select{font:inherit;color:inherit} button{border:1px solid var(--line);background:var(--panel2);border-radius:2px;padding:8px 11px;cursor:pointer}button:hover{border-color:var(--cyan);color:var(--cyan);transform:none}
-    header{padding:22px 24px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;align-items:end;background:#091114} h1{margin:0;font-family:var(--display-font);font-size:24px;letter-spacing:.08em;line-height:1.15;text-transform:uppercase} h1 span{color:var(--pink)} header p{margin:7px 0 0;color:var(--muted)} .actions{display:flex;gap:8px;flex-wrap:wrap}.primary{background:linear-gradient(135deg,#ff4fa3,#a75cff);border:0;font-family:var(--display-font);font-weight:700;letter-spacing:.045em}.shellbar{position:relative;z-index:3;display:flex;gap:8px;align-items:center;padding:10px 24px;border-bottom:1px solid var(--line);background:#060a0c;font:13px ui-monospace,monospace}.shellbar .prompt{color:var(--green);white-space:nowrap}.shellbar input{max-width:420px;padding:7px 9px}.shell-help{color:var(--muted);font-size:11px}#shellOutput{display:none;white-space:pre-wrap;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}.shell-error{color:#ff6b7a;display:block}.shell-ok{color:var(--green);display:block}body:not(.editor-ready) #shellOutput{display:block;position:fixed;z-index:3;top:78px;left:32px;right:32px;max-height:55vh;overflow:auto;color:#b8d8c7}body:not(.editor-ready) .shellbar{position:fixed;inset:0;height:100vh;align-items:flex-start;padding:28px 32px;background:#000;border:0;z-index:3;font:15px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace}body:not(.editor-ready) .shellbar input{max-width:none;flex:1;background:transparent;border:0;border-bottom:1px solid #17352f;border-radius:0;padding:0 6px;color:#e8fff0;font:inherit;outline:none}body:not(.editor-ready) .shellbar button{display:none}body:not(.editor-ready) .shell-help{display:none}
-    main{display:grid;grid-template-columns:330px minmax(360px,1fr) 360px;gap:10px;padding:10px;max-width:1700px;margin:auto}.panel{background:var(--panel);border:1px solid var(--line);border-radius:2px;overflow:hidden;min-height:calc(100vh - 120px);box-shadow:0 0 24px #0008} .panel h2{font-family:var(--display-font);font-size:14px;letter-spacing:.07em;margin:0;padding:14px 16px;border-bottom:1px solid var(--line);color:#fff}.body{padding:14px}.field{display:grid;gap:6px;margin-bottom:12px}.field label{font-size:12px;color:var(--muted)}input,textarea,select{background:#060a0c;border:1px solid var(--line);border-radius:2px;padding:9px;width:100%;outline:none;color:var(--green)}input:focus,textarea:focus{border-color:var(--cyan)}textarea{min-height:260px;resize:vertical;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}.row{display:flex;gap:8px}.row>*{flex:1}.status{color:var(--green);font-size:12px;min-height:18px;margin-top:8px}.tree{max-height:calc(100vh - 320px);overflow:auto;padding:7px}.file{display:flex;gap:7px;align-items:center;width:100%;text-align:left;background:transparent;border:0;border-radius:7px;padding:7px 9px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file:hover,.file.active{background:#303349;color:#fff}.file small{margin-left:auto;color:#777d98}.preview{height:330px;display:grid;place-items:center;background:#0c0e15;border:1px solid var(--line);border-radius:10px;overflow:hidden}.preview img{max-width:100%;max-height:100%;object-fit:contain}.preview audio{width:90%}.preview pre{width:100%;height:100%;overflow:auto;margin:0;padding:12px;color:#c9f8db;white-space:pre-wrap;font:11px/1.45 ui-monospace,monospace}.empty{color:#777d98;text-align:center;padding:24px}.meta{margin-top:10px;color:var(--muted);font-size:12px;word-break:break-all}.notice{background:#071b1b;border:1px solid #1e5854;padding:10px;border-radius:2px;color:var(--cyan);font-size:12px;margin-bottom:12px}.notice:before{content:"> ";color:var(--green)}.font-help{margin:-3px 0 12px;color:var(--muted);font-size:11px;line-height:1.6}.font-sample{display:grid;gap:10px;place-items:center;text-align:center;padding:30px;font-size:42px;line-height:1.25}.font-sample small{font-size:14px;color:var(--muted)}.font-apply{font-family:var(--display-font);font-size:12px}.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.links a{color:var(--cyan);font-size:12px} @media(max-width:1100px){main{grid-template-columns:260px 1fr}.right{grid-column:1/-1;min-height:auto}} @media(max-width:700px){header{display:block}.actions{margin-top:12px}main{grid-template-columns:1fr}.left,.right{min-height:auto}.tree{max-height:300px}}
-  </style>
-<style>#boot-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#000;transition:opacity .25s ease;z-index:1}#boot-loader img{width:92px;height:92px}#boot-loader.done{opacity:0;pointer-events:none}</style>
-</head>
-<body><div id="boot-loader" aria-label="Loading"><img src="https://haxe.org/img/branding/haxe-logo-glyph.svg" alt=""></div>
-<header class="editor-ui"><div><h1><span>Funkin</span> // asset shell</h1><p><span style="color:var(--green)">guest@funkin</span>:<span style="color:var(--cyan)">~/editor</span>$ configure --engine remote-assets</p></div><div class="actions"><button id="refresh">公式アセット一覧を取得</button><button class="primary" id="save">設定を保存</button><button id="play">run game</button></div></header>
-<div class="shellbar"><span class="prompt">guest@funkin:~/editor$</span><input id="shellCommand" value="official -setting" aria-label="shell command"><button id="shellExec" class="primary">exec</button><span class="shell-help">kade -setting / kade / psych -setting / official</span><pre id="shellOutput" aria-live="polite"></pre>
-<main class="editor-ui">
-<section class="panel left"><h2>Remote source</h2><div class="body">
-  <div class="notice">remote assets only // no local copy // CDN + GitHub API</div>
-  <div class="field"><label>GitHub API tree URL</label><input id="treeUrl" value="https://api.github.com/repos/FunkinCrew/funkin.assets/git/trees/main?recursive=1"></div>
-  <div class="field"><label>外部アセットのベースURL</label><input id="assetBase" value="https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/"></div>
-  <div class="field"><label>MODのGitHub API tree URL（任意・week制限なし）</label><input id="modTreeUrl" placeholder="https://api.github.com/repos/ユーザー/リポジトリ/git/trees/main?recursive=1"></div>
-  <div class="field"><label>MOD assetsベースURL（任意）</label><input id="modBase" placeholder="https://cdn.jsdelivr.net/gh/ユーザー/リポジトリ@main/assets/"></div>
-  <div class="field"><label>対応エンジン</label><select id="engine"><option value="official">Official / Vanilla</option><option value="psych">Psych Engine</option><option value="kade">Kade Engine</option><option value="custom">Custom / Other</option></select></div>
-  <div class="font-help">エンジンを選ぶと、公開されている公式GitHubリポジトリのAPIツリーURLとjsDelivr CDNを自動設定します。Mannyは独立した公式エンジンリポジトリがないため、Psych Engine系プリセットを使用します。</div>
-  <div class="field"><label>ゲーム本体JSのHTTP URL</label><input id="bundleUrl" value="./Funkin.js"></div>
-  <div class="row"><button id="loadSaved">保存設定を読込</button><button id="clearSaved">初期化</button></div><div id="status" class="status"></div>
-</div><h2>Asset files <span id="count" style="color:var(--muted);font-weight:400"></span></h2><div id="tree" class="tree"><div class="empty">待機中。$ refresh-assets を実行してください。</div></div></section>
-<section class="panel"><h2>HTMLで編集できる設定</h2><div class="body">
-  <div class="field"><label>タイトル</label><input id="title" value="My Funkin Mod"></div>
-  <div class="row"><div class="field"><label>テーマカラー</label><input id="accent" type="color" value="#ff4fa3"></div><div class="field"><label>背景カラー</label><input id="background" type="color" value="#11121a"></div></div>
-  <div class="field"><label>フォントURL（.ttf / .otf / .woff2）</label><input id="fontUrl" value="https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf" placeholder="公式またはMODの外部フォントURL"></div>
-    <div class="font-help">既定値は公式アセットをHTTP取得する <strong>VCR OSD Mono Bold</strong> です。アセット一覧のフォントを選ぶと、取得先URLをそのまま編集画面へ適用できます。</div>
-  <div class="field"><label>フォント名</label><input id="fontName" value="Funkin VCR"></div>
-  <div class="field"><label>編集用JSON（保存・読み込み可能）</label><textarea id="config"></textarea></div>
-  <div class="row"><button id="syncJson">フォーム → JSON</button><button id="applyJson">JSON → フォーム</button></div>
-  <div class="links"><a href="https://github.com/FunkinCrew/funkin.assets" target="_blank" rel="noreferrer">公式アセットリポジトリ</a><a href="https://github.com/FunkinCrew/Funkin" target="_blank" rel="noreferrer">公式ゲームリポジトリ</a></div>
-</div></section>
-<section class="panel right"><h2>Preview</h2><div class="body"><div id="preview" class="preview"><div class="empty">左の一覧からファイルを選択してください。</div></div><div id="meta" class="meta"></div></div></section>
-</main>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23171827'/%3E%3Cpath d='M14 18h36v8H22v7h22v8H22v13h-8z' fill='%23ff4fa3'/%3E%3Ccircle cx='47' cy='47' r='6' fill='%2343d9ff'/%3E%3C/svg%3E"><title>Funkin Game Shell</title><style>@font-face{font-family:"Funkin VCR";src:url("./vcr-bold.ttf") format("truetype");font-display:swap;font-weight:700}html,body{margin:0;width:100%;height:100%;background:#000;overflow:hidden}#openfl-content{width:100%;height:100%}#hint{position:fixed;z-index:2;top:10px;left:10px;background:#111c;color:#fff;padding:8px 10px;border-radius:8px;font:700 12px/1.5 "Funkin VCR",system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.04em}#hint a{color:#6ee7ff}</style></head>
+<body><div id="hint">公式アセットを準備中…</div><div id="openfl-content"></div>
 <script>
-const $=id=>document.getElementById(id);  let files=[]; let selected=null; let runtimeBase='';
-// ゲーム画面を開く前にアセット中継を準備して、初回の再読み込み待ちを減らす。
- if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=57',{scope:'./'}).catch(()=>{});
-const defaults={title:'My Funkin Mod',accent:'#ff4fa3',background:'#11121a',treeUrl:$('treeUrl').value,assetBase:$('assetBase').value,modTreeUrl:'',modBase:'',engine:'official',bundleUrl:'./Funkin.js',fontUrl:'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/fonts/vcr-bold.ttf',fontName:'Funkin VCR'};
-function setStatus(t,ok=true){$('status').textContent=t;$('status').style.color=ok?'var(--green)':'#ff879f'}
-const enginePresets={
-  official:{tree:'https://api.github.com/repos/FunkinCrew/funkin.assets/git/trees/main?recursive=1',base:'https://cdn.jsdelivr.net/gh/FunkinCrew/funkin.assets@main/',runtimeBase:'',modTree:'',modBase:'',bundle:'./Funkin.js'},
-  psych:{tree:'https://api.github.com/repos/CrozeStudios/FOUNDATION-FNF-HTML5-Port/git/trees/master?recursive=1',base:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',runtimeBase:'https://cdn.jsdelivr.net/gh/CrozeStudios/FOUNDATION-FNF-HTML5-Port@master/',modTree:'',modBase:'',bundle:'./PsychEngine.js'},
-  kade:{tree:'https://api.github.com/repos/KadeArchive/Kade-Engine/git/trees/stable?recursive=1',base:'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/',runtimeBase:'https://cdn.jsdelivr.net/gh/KadeArchive/Kade-Engine@stable/',modTree:'',modBase:'',bundle:'./KadeEngine.js'}
-};
-function applyEnginePreset(){const p=enginePresets[$('engine').value];if(!p)return;runtimeBase=p.runtimeBase||'';$('treeUrl').value=p.tree;$('assetBase').value=p.base;$('modTreeUrl').value=p.modTree;$('modBase').value=p.modBase;$('bundleUrl').value=p.bundle;syncJson();setStatus($('engine').selectedOptions[0].textContent+' の公式API/CDNを設定しました。')}
-function formConfig(){return {title:$('title').value,accent:$('accent').value,background:$('background').value,treeUrl:$('treeUrl').value,assetBase:$('assetBase').value,modTreeUrl:$('modTreeUrl').value,modBase:$('modBase').value,engine:$('engine').value,runtimeBase,bundleUrl:$('bundleUrl').value,fontUrl:$('fontUrl').value,fontName:$('fontName').value}}
-function setForm(c){$('title').value=c.title||defaults.title;$('accent').value=c.accent||defaults.accent;$('background').value=c.background||defaults.background;$('treeUrl').value=c.treeUrl||defaults.treeUrl;$('assetBase').value=(c.assetBase||defaults.assetBase).replace(/\/$/,'')+'/';$('modTreeUrl').value=c.modTreeUrl||'';$('modBase').value=c.modBase||'';const savedEngine=Object.prototype.hasOwnProperty.call(enginePresets,c.engine)?c.engine:defaults.engine;$('engine').value=savedEngine;runtimeBase=c.runtimeBase||enginePresets[savedEngine]?.runtimeBase||'';$('bundleUrl').value=c.bundleUrl||defaults.bundleUrl;$('fontUrl').value=c.fontUrl||defaults.fontUrl;$('fontName').value=c.fontName||defaults.fontName;syncJson()}
-function syncJson(){ $('config').value=JSON.stringify(formConfig(),null,2); document.documentElement.style.setProperty('--pink',$('accent').value);document.documentElement.style.setProperty('--bg',$('background').value);applyFont()}
-function applyFont(){const id='custom-font';document.getElementById(id)?.remove();const name=$('fontName').value.replace(/[^\w -]/g,'').trim();const url=$('fontUrl').value.trim().replace(/"/g,'');if(url&&name){const s=document.createElement('style');s.id=id;s.textContent='@font-face{font-family:"'+name+'";src:url("'+url+'");font-display:swap}';document.head.append(s);document.documentElement.style.setProperty('--editor-font','"'+name+'", var(--jp-font)');document.documentElement.style.setProperty('--display-font','"'+name+'", var(--jp-font)')}else{document.documentElement.style.removeProperty('--editor-font');document.documentElement.style.removeProperty('--display-font')}}
-function applyJson(){try{setForm(JSON.parse($('config').value));setStatus('JSONをフォームに反映しました。')}catch(e){setStatus('JSONが正しくありません。',false)}}
-async function loadTree(){setStatus('公式・MODの全アセット一覧を取得中…');$('tree').innerHTML='<div class="empty">Loading…</div>';try{let sources=[{url:$('treeUrl').value,base:$('assetBase').value,label:'OFFICIAL'}];if($('modTreeUrl').value.trim()&&$('modBase').value.trim())sources.push({url:$('modTreeUrl').value.trim(),base:$('modBase').value.trim(),label:'MOD'});let result=[];for(const src of sources){let r=await fetch(src.url);if(!r.ok)throw Error(src.label+' HTTP '+r.status);let j=await r.json();result.push(...(j.tree||[]).filter(x=>x.type==='blob').map(x=>({...x,source:src.label,base:src.base})))}files=result;$('count').textContent='('+files.length+' files)';renderTree();setStatus('公式・MODアセットを読み込みました（week制限なし）。')}catch(e){$('tree').innerHTML='<div class="empty">取得失敗: '+e.message+'</div>';setStatus('取得に失敗しました。URLとネットワークを確認してください。',false)}}
-  function renderTree(){let q=document.createElement('input');q.placeholder='ファイル名を絞り込み…';q.style.margin='8px';q.style.width='calc(100% - 16px)';q.oninput=()=>draw(q.value);$('tree').replaceChildren(q);let box=document.createElement('div');$('tree').append(box);function draw(filter=''){box.innerHTML='';files.filter(f=>f.path.toLowerCase().includes(filter.toLowerCase())).forEach(f=>{let b=document.createElement('button');b.className='file';b.innerHTML=(f.source==='MOD'?'🧩 ':'')+(/\.(png|jpg|jpeg|gif|webp)$/i.test(f.path)?'🖼️':/\.(ogg|mp3|wav)$/i.test(f.path)?'🔊':/\.(ttf|otf|woff2?)$/i.test(f.path)?'🔤':/\.json$/i.test(f.path)?'{}':'📄')+' '+f.path+'<small>'+f.source+'</small>';b.onclick=()=>previewFile(f,b);box.append(b)})}draw()}
-async function previewFile(f,b){document.querySelectorAll('.file').forEach(x=>x.classList.remove('active'));b.classList.add('active');selected=f;let url=f.base.replace(/\/$/,'')+'/'+f.path;$('meta').textContent=url;let p=$('preview');if(/\.(png|jpg|jpeg|gif|webp)$/i.test(f.path)){p.innerHTML='';let im=new Image();im.src=url;im.alt=f.path;im.onerror=()=>p.innerHTML='<div class="empty">画像を表示できませんでした。</div>';p.append(im)}else if(/\.(ogg|mp3|wav)$/i.test(f.path)){p.innerHTML='';let a=document.createElement('audio');a.controls=true;a.src=url;p.append(a)}else if(/\.(ttf|otf|woff2?)$/i.test(f.path)){const name='PreviewFont';document.getElementById('preview-font')?.remove();const s=document.createElement('style');s.id='preview-font';s.textContent='@font-face{font-family:'+name+';src:url("'+url+'");font-display:swap}';document.head.append(s);p.replaceChildren();const sample=document.createElement('div');sample.className='font-sample';sample.style.fontFamily=name+', var(--jp-font)';sample.innerHTML='Funkin<br>MOD Font<br><small>あいうえお　0123456789</small>';const apply=document.createElement('button');apply.className='font-apply';apply.textContent='このフォントを編集画面に適用';apply.onclick=()=>{const fileName=f.path.split('/').pop().replace(/\.(ttf|otf|woff2?)$/i,'').replace(/[_-]+/g,' ');$('fontUrl').value=url;$('fontName').value=fileName||'MyFunkinFont';syncJson();setStatus('選択したフォントを編集画面に適用しました。保存すると次回も使えます。')};p.append(sample,apply)}else if(/\.json$/i.test(f.path)){p.innerHTML='<div class="empty">JSONを取得中…</div>';try{let r=await fetch(url);let t=await r.text();let pre=document.createElement('pre');try{pre.textContent=JSON.stringify(JSON.parse(t),null,2)}catch{pre.textContent=t}p.replaceChildren(pre)}catch(e){p.innerHTML='<div class="empty">取得失敗: '+e.message+'</div>'}}else{p.innerHTML='<div class="empty">このファイル形式はプレビュー対象外です。<br><a href="'+url+'" target="_blank">外部URLを開く</a></div>'}}
-  function shellLog(text, error=false){const out=$('shellOutput');if(!out)return;const line=document.createElement('div');line.className=error?'shell-error':'shell-ok';line.textContent=text;out.append(line);out.scrollTop=out.scrollHeight;}
-  function runShellCommand(){
-    const raw = $('shellCommand').value.trim();
-    if(!raw)return;
-    const tokens = raw.toLowerCase().split(/\s+/).filter(Boolean);
-    const engine = tokens[0] || 'official';
-    shellLog('guest@funkin:~/editor$ '+raw);
-    $('shellCommand').value='';
-    if(engine === 'help' || engine === '--help' || engine === '-h'){
-      document.body.classList.add('editor-ready');
-      document.getElementById('boot-loader')?.classList.add('done');
-      shellLog('help: official -setting | psych -setting | kade -setting | official | psych | kade | clear');setStatus('help: official -setting | psych -setting | kade -setting | official | psych | kade | clear');
-      $('shellCommand').value='help';
-      return;
+const hint = document.getElementById('hint');
+function setHint(text){ hint.firstChild.textContent = text + ' '; }
+
+// 100秒間操作がなければ、このゲーム画面を自動終了する。
+// window.close() はブラウザ仕様上、scriptで開かれたタブでのみ成功するため、
+// 通常のタブでは about:blank へ移動して画面を閉じた状態にする。
+const IDLE_CLOSE_MS = 100000;
+let idleTimer = 0;
+let lastActivity = 0;
+function closeIdlePage(){
+  try { window.close(); } catch (_) {}
+  setTimeout(() => {
+    if (!document.hidden) {
+      try { location.replace('about:blank'); } catch (_) {
+        document.body.replaceChildren();
+        document.body.style.background = '#000';
+      }
     }
-    if(engine === 'clear' || engine === 'cls'){
-      $('shellCommand').value='';
-      $('shellOutput').replaceChildren();
-      setStatus('');
-      return;
+  }, 300);
+}
+function resetIdleClose(){
+  const now = Date.now();
+  if (now - lastActivity < 250) return;
+  lastActivity = now;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(closeIdlePage, IDLE_CLOSE_MS);
+}
+['pointerdown','keydown','wheel','touchstart','mousemove'].forEach(type => {
+  window.addEventListener(type, resetIdleClose, {passive:true});
+});
+resetIdleClose();
+
+// Funkin.js の Lime/OpenFL はフォントを「名前」だけで参照し、@font-face は作らない。
+// ページ側に同名の定義が無いとブラウザ標準のセリフ体になるため、VCR を同名で登録する。
+async function registerGameFonts(){
+  const V = './assets/fonts/vcr.ttf';
+  const names = [
+    'VCR OSD Mono','VCR OSD Mono Bold','VCR OSD Mono Italic','VCR OSD Mono Bold Italic',
+    // 曲名(フリープレイ)・BOYFRIEND などが使う名前。未登録だとセリフ体になるので全部VCRにする
+    '5by7','5by7 Bold','Consolas Italic','DS-Digital','DS-Digital Bold','DS-Digital Italic','DS-Digital Bold Italic',
+    'Inconsolata Black','Inconsolata Bold','Inconsolata ExtraBold','Inconsolata ExtraLight','Inconsolata Medium',
+    'Inconsolata Regular','Inconsolata SemiBold','Quantico','Quantico-Bold','Quantico-Italic','Quantico-BoldItalic',
+    'Share Tech Mono','YoureGone-Regular','Nokia Cellphone FC Small','Monsterrat'
+  ];
+  const faces = names.map(n => [n, /Bold/i.test(n) && !/Italic/i.test(n) ? './assets/fonts/vcr-bold.ttf' : V]);
+  const jobs = [];
+  for (const [family, url] of faces) {
+    for (const style of ['normal', 'italic']) {
+      // Service Worker 経由(公式CDN)を優先し、取れなければ同梱の vcr-bold.ttf を使う
+      const face = new FontFace(family, `url("${url}"), url("./vcr-bold.ttf")`, {weight:'100 900', style});
+      jobs.push(face.load().then(f => { document.fonts.add(f); }, e => console.warn('VCRフォント登録失敗:', family, e)));
     }
-    const setting = tokens.includes('-setting') || tokens.includes('--setting');
-    if(!enginePresets[engine]){shellLog('bash: '+engine+': command not found',true);setStatus('command not found: '+engine,false);return;}
-    $('engine').value=engine; applyEnginePreset();
-    if(setting){shellLog(engine+' -setting : editor configuration loaded');document.body.classList.add('editor-ready');document.getElementById('boot-loader')?.classList.add('done');setStatus(engine+' -setting : editor configuration loaded');return;}
-    syncJson();localStorage.setItem('funkin-html-editor',JSON.stringify(formConfig()));
-    shellLog('exec '+engine+' : launching game');setStatus('exec '+engine+' : launching game'); window.open('game.html','_blank','noopener');
   }
-  $('engine').onchange=applyEnginePreset;$('shellExec').onclick=runShellCommand;$('shellCommand').onkeydown=e=>{if(e.key==='Enter')runShellCommand()};$('syncJson').onclick=syncJson;$('applyJson').onclick=applyJson;$('refresh').onclick=loadTree;$('save').onclick=()=>{syncJson();localStorage.setItem('funkin-html-editor',JSON.stringify(formConfig()));setStatus('設定をブラウザに保存しました。')};$('loadSaved').onclick=()=>{let x=localStorage.getItem('funkin-html-editor');if(x){setForm(JSON.parse(x));setStatus('保存設定を読み込みました。')}else setStatus('保存設定はありません。',false)};$('clearSaved').onclick=()=>{localStorage.removeItem('funkin-html-editor');setForm(defaults);setStatus('初期設定に戻しました。')};$('play').onclick=()=>window.open('game.html','_blank','noopener');syncJson();
+  await Promise.allSettled(jobs);
+}
+async function prepareGameFont(config){
+  await registerGameFonts();
+  const url = config.fontUrl || './vcr-bold.ttf';
+  const name = (config.fontName || 'Funkin VCR').replace(/[^\w -]/g,'').trim() || 'Funkin VCR';
+  navigator.serviceWorker.controller?.postMessage({type:'set-font-url', url});
+  const face = new FontFace(name, `url(${JSON.stringify(url)})`, {weight:'700', style:'normal'});
+  try {
+    await face.load();
+    document.fonts.add(face);
+    document.documentElement.style.setProperty('--game-font', `"${name}", system-ui, sans-serif`);
+  } catch (e) {
+    console.warn('ゲーム用HTTPフォントの先行読込に失敗:', e);
+  }
+}
+function loadGameBundle(){
+  const script = document.createElement('script');
+  // Keep the game bundle same-origin so this Service Worker can intercept manifests and assets.
+  const bundleUrl = './Funkin.js';
+  script.src = bundleUrl;
+  script.onload = () => {
+    try {
+      const limeApi = window.lime || (window.exports && window.exports.lime);
+      if(limeApi && typeof limeApi.embed === 'function') {
+        window.lime = limeApi;
+        setHint('ゲームを起動中…');
+        limeApi.embed('Funkin','openfl-content',1280,720,{resizable:true});
+      } else setHint('Funkin.js のLime embed APIが見つかりません。');
+    } catch(e) { setHint('起動エラー: ' + e.message); console.error(e); }
+  };
+  script.onerror = () => setHint('ゲーム本体JSをHTTPから読み込めません: ' + bundleUrl);
+  document.body.appendChild(script);
+}
+(async function(){
+  if (!('serviceWorker' in navigator)) { setHint('このブラウザはService Worker非対応です。'); await registerGameFonts(); loadGameBundle(); return; }
+  try {
+    const registration = await navigator.serviceWorker.register('./sw.js?v=29', {scope:'./'});
+    await registration.update();
+    await navigator.serviceWorker.ready;
+    // 新規訪問時も確実に現在のページを制御させる。
+    if (!navigator.serviceWorker.controller) {
+      setHint('公式アセット経路を有効化しました。再読み込み中…');
+      location.reload();
+      return;
+    }
+    let config = {};
+    const saved = localStorage.getItem('funkin-html-editor');
+    if (saved) {
+      try {
+        config = JSON.parse(saved);
+        if (config.modBase) navigator.serviceWorker.controller.postMessage({type:'set-mod-base', base:config.modBase});
+        navigator.serviceWorker.controller.postMessage({type:'set-engine', engine:config.engine || 'official'});
+        if (config.runtimeBase) navigator.serviceWorker.controller.postMessage({type:'set-runtime-base', base:config.runtimeBase});
+      } catch (_) {}
+    }
+    await prepareGameFont(config);
+    setHint('公式アセットを準備済み。ゲームを読み込み中…');
+    loadGameBundle();
+  } catch(e) {
+    setHint('アセット中継の準備に失敗: ' + e.message);
+    console.error(e);
+    await registerGameFonts();
+    loadGameBundle();
+  }
+})();
 </script></body></html>
