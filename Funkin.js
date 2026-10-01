@@ -164248,6 +164248,12 @@ lime_utils_Assets.getAsset = function(id,type,useCache) {
 				}
 				return asset;
 			} else {
+				// Browser builds may expose external audio through the async loader only.
+				// Do not throw from the synchronous getter; callers can continue without
+				// optional UI/result music while the asset is unavailable synchronously.
+				if(type == "SOUND" || type == "MUSIC") {
+					return null;
+				}
 				lime_utils_Log.error(type + " asset \"" + id + "\" exists, but only asynchronously",{ fileName : "lime/utils/Assets.hx", lineNumber : 131, className : "lime.utils.Assets", methodName : "getAsset"});
 			}
 		} else {
